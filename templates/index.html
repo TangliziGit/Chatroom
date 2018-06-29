@@ -2,17 +2,27 @@
 <html lang='en'>
 <head>
     <title>Light Chat Room</title>
-    <script src='../static/jquery.js'></script>
+    <script src='../static/jquery-3.3.1.min.js'></script>
 </head>
 <body>
     <script src='../static/chatroom.js'></script>
 
-    <input type='text' name='text' value='TestUser' id='userNameBox'/>
-    <input type='text' name='text' value='write your msg here.' id='textBox'/>
-    <button id='submitBtn'>Submit</button>
-    <button id='getMsgBtn'>GetMsg</button>
+    <table id='userInfoTable'>
+        <tr>
+            <td>Your Name:</td>
+            <td><input type='text' name='text' value='TestUser' id='userNameBox'/></td>
+        </tr>
+        <tr>
+            <td>Post Msg:</td>
+            <td><input type='text' name='text' value='write your msg here.' id='textBox'/></td>
+        </tr>
+        <tr>
+            <td><button id='submitBtn'>Submit</button></td>
+            <td><button id='getMsgBtn'>GetMsg</button></td>
+        </tr>
+    </table>
 
-    <div class='chatBox'>
+    <div id='chatBox'>
         <!-- chat messages -->
     </div>
 </body>
