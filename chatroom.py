@@ -1,16 +1,29 @@
 # TODO:
-# 1. use session
-# 2. use uniqe user_id instead of userName
-# 3. deal with secure problems
-# 4. maybe more beautiful?
+# 0. fix some bugs
+#   (:81 last-time)
+#   (user_name truns 'undefined' in chrome)
+# 1. deal with secure problems
+# 2. maybe more beautiful?
 
-import json
+import json, time, random
 
 from flask import *
 from pymongo import MongoClient
 
+import config
+
 app=Flask(__name__)
+app.config.from_object(config)
+
 mcol=MongoClient().ChatRoom.messages
+idset=set([])
+
+def get_random_id():
+    rand_value=random.randint(1, 9999)
+    while rand_value in idset:
+        rand_value=random.randint(1, 9999)
+    idset.add(rand_value)
+    return ("%s"%(rand_value)).zfill(4)
 
 @app.errorhandler(404)
 def page_not_find(error):
@@ -18,29 +31,60 @@ def page_not_find(error):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    if session.get('user_id', None):
+        return render_template('index.html', user_name=session['user_name'])
+    else:
+        return redirect('/login')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if session.get('user_id', None):
+        return redirect('/')
+    if request.method=='POST':
+        username=request.form['userName']
+        if not username:
+            return render_template('login.html', info="not entered user name.")
+        else:
+            session['user_id']=get_random_id()
+            session['user_name']=escape(username)
+            session['last_submit_time']=int(time.time())
+            return redirect('/')
+    return render_template('login.html')
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    user_id=session.get('user_id', '')
+    if user_id in idset:
+        idset.remove(user_id)
+    session.pop('user_id', None)
+    session.pop('user_name', None)
+    session.pop('last_submit_time', None)
+    return redirect('/login')
 
 @app.route('/post', methods=['POST'])
 def get_message():
     form=request.form
-    if 'time' in form and 'user' in form and 'content' in form:
-        # secure problems!!!!!!!
-        msg={"time":int(form['time']), "user":form['user'],
-                'content':form['content']}
+    if not session.get("user_id", None):
+        return redirect('/login')
+    if 'content' in form:
+        session['last_submit_time']=int(time.time())
+        msg={"time":int(session['last_submit_time']),
+             "user_id":session['user_id'],
+             "user_name":session['user_name'],
+             "content":escape(form['content'])}
         mcol.insert(msg)
         return "Succeed."
     return "Failed."
 
 @app.route('/get', methods=['GET'])
 def find_messages():
-    time=request.args.get('time', None)
-    user=request.args.get('user', None)
-    if time and user:
-        res=list(mcol.find({'time':{'$gt': int(time)},
-                            'user':{'$ne': user}}, {'_id':0}))
+    # print(session.get('user_id', 'None'), session['user_name'])
+    if session.get("user_id", None):
+        res=list(mcol.find({'time':{'$gte': session['last_submit_time']},
+                            'user_id':{'$ne': session['user_id']}}, {'_id':0}))
+        session['last_submit_time']=int(time.time())
         return json.dumps(res)
-    else:
-        return None
+    return "[]"
 
 if __name__=='__main__':
     app.run()

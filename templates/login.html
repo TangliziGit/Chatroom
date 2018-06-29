@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <title>Light Chat Room::Login</title>
+    <script src='../static/jquery-3.3.1.min.js'></script>
+</head>
+<body>
+    <h1>Login</h1>
+    <form action='/login' method='post'>
+        <p><input type='text' name='userName' value='Enter your name.'/></p>
+        <input type='submit' value='Submit' />
+    </form>
+
+    {% if info %}
+    <p>{{info}}</p>
+    {% endif %}
+</body>

@@ -7,18 +7,21 @@
 <body>
     <script src='../static/chatroom.js'></script>
 
+    <h1>Chat Room</h1>
     <table id='userInfoTable'>
+        {% if user_name %}
         <tr>
             <td>Your Name:</td>
-            <td><input type='text' name='text' value='TestUser' id='userNameBox'/></td>
+            <td id="userName">{{user_name}}</td>
         </tr>
+        {% endif %}
         <tr>
             <td>Post Msg:</td>
             <td><input type='text' name='text' value='write your msg here.' id='textBox'/></td>
         </tr>
         <tr>
             <td><button id='submitBtn'>Submit</button></td>
-            <td><button id='getMsgBtn'>GetMsg</button></td>
+            <!-- <td><button id='getMsgBtn'>GetMsg</button></td> -->
         </tr>
     </table>
 
