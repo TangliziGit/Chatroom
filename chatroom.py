@@ -1,7 +1,4 @@
 # TODO:
-# 0. fix some bugs
-#   (:81 last-time)
-#   (user_name truns 'undefined' in chrome)
 # 1. deal with secure problems
 # 2. maybe more beautiful?
 
@@ -17,6 +14,9 @@ app.config.from_object(config)
 
 mcol=MongoClient().ChatRoom.messages
 idset=set([])
+
+def get_time():
+    return round(time.time()*1000)
 
 def get_random_id():
     rand_value=random.randint(1, 9999)
@@ -47,7 +47,7 @@ def login():
         else:
             session['user_id']=get_random_id()
             session['user_name']=escape(username)
-            session['last_submit_time']=int(time.time())
+            session['last_submit_time']=get_time()
             return redirect('/')
     return render_template('login.html')
 
@@ -67,7 +67,7 @@ def get_message():
     if not session.get("user_id", None):
         return redirect('/login')
     if 'content' in form:
-        session['last_submit_time']=int(time.time())
+        session['last_submit_time']=get_time()
         msg={"time":int(session['last_submit_time']),
              "user_id":session['user_id'],
              "user_name":session['user_name'],
@@ -82,7 +82,7 @@ def find_messages():
     if session.get("user_id", None):
         res=list(mcol.find({'time':{'$gte': session['last_submit_time']},
                             'user_id':{'$ne': session['user_id']}}, {'_id':0}))
-        session['last_submit_time']=int(time.time())
+        session['last_submit_time']=get_time()
         return json.dumps(res)
     return "[]"
 
