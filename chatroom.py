@@ -7,7 +7,7 @@ import json, time, random
 
 from flask import *
 from flask_socketio import SocketIO, join_room, leave_room, emit
-from pymongo import MongoClient
+# from pymongo import MongoClient
 
 import config
 
@@ -15,7 +15,7 @@ app=Flask(__name__)
 app.config.from_object(config)
 socketio=SocketIO(app)
 
-mcol=MongoClient().ChatRoom.messages
+# mcol=MongoClient().ChatRoom.messages
 idset=set([])
 
 def get_time():
