@@ -1,13 +1,31 @@
-GetMessagesInterval=1000
-
 $(document).ready(function(){
-    $("#submitBtn").click(function(){
-        userName=$("#userName").text();
+    socketio=io.connect("ws://localhost:5000/chat", {transports: ['polling']});
 
-        $("#chatBox").append("<p>"+userName+": "+$("#textBox").val()+"</p>");
-        $.post("/post", {
-            "content": $("#textBox").val()
-        }, function(data, status){});
+    socketio.emit('connect', {});
+
+    socketio.on('room_info', function(info){
+        userId=     info['user_id'];
+        userName=   info['user_name'];
+        ifenter=    info['ifenter'];
+
+        if (ifenter){
+            $("#chatBox").append("<p id='enter'>"+userName+"(#"+userId+") Entered</p>");
+        }else{
+            $("#chatBox").append("<p id='leave'>"+userName+"(#"+userId+") Entered</p>");
+        }
+    });
+    
+    socketio.on('message', function(msg){
+        userId=     msg['user_id'];
+        userName=   msg['user_name'];
+        content=    msg['content']
+
+        $("#chatBox").append("<p id='content'>"+userName+"(#"+userId+"): "+content+"</p>");
+    });
+
+    // addEvents
+    $("#submitBtn").click(function(){
+        socketio.emit("submit", {"content": $("#textBox").val()});
     });
 
     $("#textBox").keydown(function(event){
@@ -17,20 +35,8 @@ $(document).ready(function(){
             $("#textBox").val("");
         }
     });
+
+    // $("#textBox").focus(function(){
+    //     // $("#textBox").val("")
+    // });
 });
-
-function getMessages(recur){
-    $.get('/get', function(data, status){
-        items=jQuery.parseJSON(data);
-        for (i in items){
-            $("#chatBox").append("<p>"+ items[i]["user_name"] +"(#"+ items[i]["user_id"] +"): "+ items[i]["content"] +"</p>");
-        }
-    });
-
-    if (recur){
-        setTimeout(function(){getMessages(true)}, GetMessagesInterval);
-    }
-}
-
-
-setTimeout(function(){getMessages(true)}, GetMessagesInterval)

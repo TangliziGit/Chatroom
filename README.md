@@ -1,5 +1,5 @@
 # chatroom
-A light chatroom practice project used flask, mongodb and jQuery
+A simple chatroom practice project used flask and jQuery, based on websocket
 
 # How to run it
 ```

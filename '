@@ -2,14 +2,9 @@
 <html lang='en'>
 <head>
     <title>Light Chat Room</title>
-    <!-- <link rel="styleheet" href={{url_for("static", filename="style.css")}} type='text/css'/ -->
+    <style src={{url_for("static", filename="style.css")}}></style>
     <script src={{url_for("static", filename="jquery-3.3.1.min.js")}}></script>
     <script src={{url_for("static", filename="socket.io.min.js")}}></script>
-    <style>
-        #enter{color:green;}
-        #leave{color:red;}
-        #content{color:black;}
-    </style>
 </head>
 <body>
     <script src='../static/chatroom.js'></script>
