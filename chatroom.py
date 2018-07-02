@@ -1,5 +1,5 @@
 # TODO:
-# 0. deal with disconnect problem
+# 0. remove session problem
 # 1. deal with secure problems
 # 2. maybe more beautiful?
 
@@ -7,6 +7,7 @@ import json, time, random
 
 from flask import *
 from flask_socketio import SocketIO, join_room, leave_room, emit
+from itsdangerous import Serializer
 # from pymongo import MongoClient
 
 import config
@@ -14,6 +15,7 @@ import config
 app=Flask(__name__)
 app.config.from_object(config)
 socketio=SocketIO(app)
+signer=Serializer(config.SECRET_KEY)
 
 # mcol=MongoClient().ChatRoom.messages
 idset=set([])
@@ -28,23 +30,37 @@ def get_random_id():
     idset.add(rand_value)
     return ("%s"%(rand_value)).zfill(4)
 
+def get_sign_items(signed):
+    try:
+        sign=signer.loads(signed)
+    except:
+        return None
+    else:
+        return sign
+
 @socketio.on('connect', namespace='/chat')
 def on_connect():
-    join_room(session.get('room_id', 0))
-
-    room_info={'user_id':   session['user_id'],
-               'user_name': session['user_name'],
-               'ifenter':   True}
-    emit('room_info', room_info, room=session['room_id'], broadcast=True)
-
+    signed=request.cookies.get('ChatRoomSign', 0)
+    sign=get_sign_items(signed)
+    
+    if sign:
+        join_room(sign[2])
+        room_info={'user_id':   sign[0],
+                   'user_name': sign[1],
+                   'ifenter':   True}
+        emit('room_info', room_info, room=sign[2], broadcast=True)
 
 @socketio.on('submit', namespace='/chat')
 def on_submit(message):
-    emitmsg={'user_id':     session['user_id'],
-             'user_name':   session['user_name'],
-             'content':     escape(message['content']),
-            }
-    emit('message', emitmsg, room=session['room_id'], broadcast=True)
+    signed=request.cookies.get('ChatRoomSign', 0)
+    sign=get_sign_items(signed)
+    
+    if sign:
+        emitmsg={'user_id':     sign[0],
+                 'user_name':   sign[1],
+                 'content':     escape(message['content']),
+                }
+        emit('message', emitmsg, room=sign[2], broadcast=True)
 
 @app.errorhandler(404)
 def page_not_find(error):
@@ -52,15 +68,23 @@ def page_not_find(error):
 
 @app.route('/', methods=['GET'])
 def index():
-    if session.get('user_id', None):
-        return render_template('index.html', user_name=session['user_name'])
+    signed=request.cookies.get('ChatRoomSign', 0)
+    sign=get_sign_items(signed)
+    
+    print(sign)
+
+    if sign:
+        return render_template('index.html', user_name=sign[1])
     else:
         return redirect('/login')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if session.get('user_id', None):
-        return redirect('/')
+    signed=request.cookies.get('sign', 0)
+    sign=get_sign_items(signed)
+    if sign:
+        return redirect('index')
+
     if request.method=='POST':
         form=request.form
         username=request.form.get('userName', None)
@@ -69,29 +93,22 @@ def login():
         if not form or not username:
             return render_template('login.html', info="not entered user name.")
         else:
-            session['room_id']=room_id
-            session['user_id']=get_random_id()
-            session['user_name']=escape(username)
-
-            return redirect('/')
+            sign=signer.dumps([get_random_id(), username, room_id])
+            resp=make_response(redirect('/'))
+            resp.set_cookie("ChatRoomSign", sign)
+            return resp
     return render_template('login.html')
 
 @app.route('/logout', methods=['GET'])
 def logout():
-    user_id=session.get('user_id', '')
-    if user_id in idset:
-        idset.remove(user_id)
-    # leave_room(session.get('room_info', 0))
-    session.pop('room_id', None)
-    session.pop('user_id', None)
-    session.pop('user_name', None)
+    signed=request.cookies.get('sign', 0)
+    sign=get_sign_items(signed)
 
-    # room_info={'user_id':   session['user_id'],
-    #            'user_name': session['user_name'],
-    #            'ifenter':   False}
-    # emit('room_info', room_info, room=session['room_id'])
-
-    return redirect('/login')
+    if sign and sign[0] in idset:
+        idset.remove(sign[0])
+    resp=make_response(redirect('/login'))
+    resp.delete_cookie("ChatRoomSign")
+    return resp
 
 if __name__=='__main__':
     app.run()

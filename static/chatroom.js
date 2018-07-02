@@ -35,8 +35,4 @@ $(document).ready(function(){
             $("#textBox").val("");
         }
     });
-
-    // $("#textBox").focus(function(){
-    //     // $("#textBox").val("")
-    // });
 });
