@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    socketio=io.connect("ws://localhost:5000/chat", {transports: ['polling']});
+    socketio=io.connect("ws://localhost:80/chat", {transports: ['polling']});
+    // socketio=io.connect("ws://45.32.45.1:80/chat", {transports: ['polling']});
 
     socketio.emit('connect', {});
 
@@ -9,9 +10,9 @@ $(document).ready(function(){
         ifenter=    info['ifenter'];
 
         if (ifenter){
-            $("#chatBox").append("<p id='enter'>"+userName+"(#"+userId+") Entered</p>");
+            $("#chatBox").append("<p class='enter'>"+userName+"(#"+userId+") Entered</p>");
         }else{
-            $("#chatBox").append("<p id='leave'>"+userName+"(#"+userId+") Entered</p>");
+            $("#chatBox").append("<p class='leave'>"+userName+"(#"+userId+") Entered</p>");
         }
     });
     
@@ -20,7 +21,7 @@ $(document).ready(function(){
         userName=   msg['user_name'];
         content=    msg['content']
 
-        $("#chatBox").append("<p id='content'>"+userName+"(#"+userId+"): "+content+"</p>");
+        $("#chatBox").append("<p class='content'>"+userName+"(#"+userId+"): "+content+"</p>");
     });
 
     // addEvents
@@ -29,7 +30,6 @@ $(document).ready(function(){
     });
 
     $("#textBox").keydown(function(event){
-        console.log(event);
         if (event.keyCode==13){
             $("#submitBtn").click();
             $("#textBox").val("");
