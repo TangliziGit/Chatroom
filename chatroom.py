@@ -1,5 +1,4 @@
 # TODO:
-# -1. show chinesse messages
 #  0. disconnect problem
 #  1. deal with secure problems
 #  2. maybe more beautiful?
@@ -9,7 +8,7 @@ import json, time, random
 from flask import *
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from itsdangerous import Serializer
-import html
+from urllib import parse
 
 from pymongo import MongoClient
 
@@ -58,11 +57,11 @@ def on_connect():
 def on_submit(message):
     signed=request.cookies.get('ChatRoomSign', 0)
     sign=get_sign_items(signed)
-    
+
     if isinstance(sign, dict):
         emitmsg={'user_id':     sign['user_id'],
                  'user_name':   sign['user_name'],
-                 'content':     html.escape(message['content']),
+                 'content':     escape(parse.unquote(message['content']))
         }
 
         mdb.insert({

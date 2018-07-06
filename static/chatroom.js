@@ -19,14 +19,16 @@ $(document).ready(function(){
     socketio.on('message', function(msg){
         userId=     msg['user_id'];
         userName=   msg['user_name'];
-        content=    msg['content']
+        content=    msg['content'];
+
+        console.log(msg);
 
         $("#chatBox").append("<p class='content'>"+userName+"(#"+userId+"): "+content+"</p>");
     });
 
     // addEvents
     $("#submitBtn").click(function(){
-        socketio.emit("submit", {"content": $("#textBox").val()});
+        socketio.emit("submit", {"content": encodeURIComponent($("#textBox").val())});
     });
 
     $("#textBox").keydown(function(event){
