@@ -1,0 +1,5 @@
+*.pyc
+__pycache__/
+chatroom/__pycache__/
+tests/__pycache__/
+
