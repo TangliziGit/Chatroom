@@ -10,12 +10,14 @@ import chatroom.config
 
 class BaseDatabase:
     db=None
+    con=None
     def __init__(self):
         self.con=None
         if 'con' not in g:
             self.con=MongoClient()
+            g.con=self.con
         else:
-            self.con=g['con']
+            self.con=g.con
 
     @staticmethod
     def teardown(self):
@@ -26,7 +28,12 @@ class BaseDatabase:
 class UserDatabase(BaseDatabase):
     def __init__(self):
         super(UserDatabase, self).__init__()
-        self.db=self.con.Chatroom.users
+        self.db=None
+        if 'user_db' not in g:
+            self.db=self.con.Chatroom.users
+            g.user_db=self.db
+        else:
+            self.db=g.user_db
 
     def insert(self, user, password):
         res=list(self.db.find({'userId': user['userId']}))
@@ -35,8 +42,8 @@ class UserDatabase(BaseDatabase):
         else:
             self.db.insert({
                 'userId': user['userId'],
-                'name': user['name'],
-                'password': self.__encrypt_with_salt(password),
+                'userName': user['userName'],
+                'password': password, # self.__encrypt_with_salt(password),
                 'profile': user['profile']
             })
 
@@ -56,7 +63,17 @@ class UserDatabase(BaseDatabase):
         user=User(res)
         return user
 
-    def find(self, query, limit, skip):
+    def find_one_with_password(self, query):
+        res=list(self.db.find(query))
+        if len(res)<1:
+            return None
+        res=res[0]
+        res.pop("_id")
+        password=res.pop("password")
+        user=User(res)
+        return user, password
+
+    def find(self, query, limit=1, skip=0):
         userlist=[]
         for res in self.db.find(query)[skip:skip+limit]:
             res.pop("_id")
@@ -65,12 +82,9 @@ class UserDatabase(BaseDatabase):
             userlist.append(User)
         return userlist
 
-    def __encrypt_with_salt(self, password):
-        salt=config.SALT
-        password=password+salt
-        # attend this
-        password=hashlib.sha256(password.encode()).digest()
-        return password
+    def count(self, query={}):
+        cnt=self.db.count_documents(query)
+        return cnt
 
 class User:
     userinfo={}
@@ -78,7 +92,7 @@ class User:
     def __init__(self, userinfo):
         try:
             self.userinfo['userId']=userinfo['userId']
-            self.userinfo['name']=userinfo['name']
+            self.userinfo['userName']=userinfo['userName']
             self.userinfo['profile']=userinfo['profile']
         except KeyError as err:
             print("Error in init User instance.")
@@ -118,7 +132,12 @@ class User:
 class MsgDatabase(BaseDatabase):
     def __init__(self):
         super(MsgDatabase, self).__init__()
-        self.db=self.con.Chatroom.messages
+        self.db=None
+        if 'msg_db' not in g:
+            self.db=self.con.Chatroom.messages
+            g.msg_db=self.db
+        else:
+            self.db=g.msg_db
 
     def insert(self, message):
         res=list(self.db.find({'msgId': message['msgId']}))
@@ -205,7 +224,7 @@ class Message:
         """
             params: 'query' is a dict, which can be followed to find items.
             exmaple:
-                Message.find({'name': 'admin', 'timeStamp': {'$gt': '1'}})
+                Message.find({'userName': 'admin', 'timeStamp': {'$gt': '1'}})
         """
         db=MsgDatabase()
         # if query.get('time', None):
@@ -273,7 +292,7 @@ class UserList:
         """
             params: 'query' is a dict, which can be followed to find items.
             exmaple:
-                userlist.remove({'name': 'admin'})
+                userlist.remove({'userName': 'admin'})
         """
         res=[]
         for key, value in query.items():
@@ -284,7 +303,7 @@ class UserList:
         """
             params: 'query' is a dict, which can be followed to find items.
             exmaple:
-                userlist.find({'name': 'admin'})
+                userlist.find({'userName': 'admin'})
         """
         res=[]
         for key, value in query.items():
