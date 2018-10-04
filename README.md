@@ -1,4 +1,4 @@
-# chatroom
+# Chatroom
 A simple chatroom practice project, which uses flask and mongodb.
 
 # TODO
@@ -7,8 +7,6 @@ A simple chatroom practice project, which uses flask and mongodb.
 
 ## functions
 1. http
-    - index
-    - login
     - chatroom
     - userdetail
     - upload
