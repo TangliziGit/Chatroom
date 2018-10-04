@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, user-scalable=no' />
+
+    <title>Light Chat Room::{% block title %}{% endblock %}</title>
+    <script src={{url_for("static", filename="jquery-3.3.1.min.js")}}></script>
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}" />
+
+    <nav>
+        <h1>Light Chatroom</h1>
+        <ul>
+            {% if not g.user %}
+            <li><a href="{{ url_for("auth.login") }}">Login</a></li>
+            <li><a href="{{ url_for("auth.register") }}">Register</a></li>
+            {% else %}
+            <li><span>{{ g.user['userName'] }}</span></li>
+            <li><a href="{{ url_for("auth.logout") }}">Logout</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <section class="content">
+    {% block content%}{% endblock %}
+    </section>
+
+    {% for messages in get_flashed_messages() %}
+    <div class="flash">{{ messages }}</div>
+    {% endfor %}
+</body>
+</html>

@@ -1,22 +1,8 @@
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-    <meta charset='utf-8' />
-    <meta name='viewport' content='width=device-width, user-scalable=no' />
+{% extends 'base.html' %}
 
-    <title>Light Chat Room::Chat</title>
-    <script src={{url_for("static", filename="jquery-3.3.1.min.js")}}></script>
-    <script src={{url_for("static", filename="socket.io.min.js")}}></script>
-    <style>
-        .enter{color:green;}
-        .leave{color:red;}
-        .content{color:black;}
-    </style>
-</head>
-<body>
-    <script src='../static/chatroom.js'></script>
+{% block title %}Index{% endblock %}
 
-    <h1>Chat Room</h1>
+{% block content %}
     <table id='userInfoTable'>
         {% if username %}
         <tr>
@@ -36,5 +22,4 @@
     <div id='chatBox'>
         <!-- chat messages -->
     </div>
-</body>
-</html>
+{% endblock %}

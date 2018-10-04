@@ -2,8 +2,8 @@ import functools
 
 from flask import (
     Blueprint, session, g, request, render_template, redirect,
-    url_for
-)
+    url_for, flash
+    )
 
 import chatroom
 from chatroom import config
@@ -54,11 +54,11 @@ def register():
                 'profile': 'None'
             })
             user_db.insert(user, util.get_encrypt_password(password))
-            session['user']=user
-            return redirect(url_for('auth.login'))
+            session['userId']=user['userId']
+            return redirect(url_for('index'))
         else:
-            # flash(error)
-            return render_template('register.html', error=error)
+            flash(error)
+            return render_template('register.html')
     else:
         return render_template('register.html')
 
@@ -95,7 +95,8 @@ def login():
             session['userId']=user['userId']
             return redirect(url_for('index'))
         else:
-            return render_template('login.html', error=error)
+            flash(error)
+            return render_template('login.html')
     else:
         return render_template('login.html')
 
