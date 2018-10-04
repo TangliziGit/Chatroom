@@ -3,23 +3,5 @@
 {% block title %}Index{% endblock %}
 
 {% block content %}
-    <table id='userInfoTable'>
-        {% if username %}
-        <tr>
-            <td>Your Name:</td>
-            <td id="userName">{{username}}</td>
-        </tr>
-        {% endif %}
-        <tr>
-            <td>Post Msg:</td>
-            <td><input type='text' name='text' value='write your msg here.' id='textBox'/></td>
-        </tr>
-        <tr>
-            <td><button id='submitBtn'>Submit</button></td>
-        </tr>
-    </table>
-
-    <div id='chatBox'>
-        <!-- chat messages -->
-    </div>
+    <h1 style="text-align:center">Welcome to Light Chat Room!</h1>
 {% endblock %}

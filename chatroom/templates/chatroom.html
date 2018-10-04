@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Chatroom{% endblock %}
+{% block head %}
+<script src="{{ url_for('static', filename='javascript/chatroom.js') }}"></scrpit>
+{% endblock %}
+
+{% block content %}
+    <h1>Chatroom</h1>
+    <table id='messageTable'>
+        <tr>
+            <td>UserName</td>
+            <td id="userName">{{ g.user['userName'] }}</td>
+        </tr>
+        <tr>
+            <td>Post Msg:</td>
+            <td><input name='text' value='' id='textBox'/></td>
+        </tr>
+        <tr>
+            <td><button id='submitBtn'>Submit</button></td>
+        </tr>
+    </table>
+
+    <div id='chatBox'>
+        <!-- chat messages -->
+    </div>
+{% endblock %}
