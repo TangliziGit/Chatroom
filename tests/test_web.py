@@ -1,6 +1,8 @@
 """
     Test for:
-        app
+        /auth/register
+        /auth/login
+        /auth/logout
 """
 
 import sys, os
@@ -14,10 +16,6 @@ import chatroom
 from chatroom import config
 
 app=chatroom.create_app()
-
-@app.route('/index', methods=['GET'])
-def index():
-    return 'User `%s` login successfully.'%g.user['userName']
 
 if __name__=='__main__':
     app.run(config.WEB_ADDR, port=config.WEB_PORT)

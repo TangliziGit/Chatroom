@@ -7,7 +7,7 @@ from flask import (
 
 import chatroom
 from chatroom import config
-from chatroom import util
+from chatroom import utils
 from chatroom.database import *
 
 # ---------- init ----------
@@ -49,11 +49,11 @@ def register():
 
         if error is None:
             user=User({
-                'userId': util.get_user_id(),
+                'userId': utils.get_user_id(),
                 'userName': userName,
                 'profile': 'None'
             })
-            user_db.insert(user, util.get_encrypt_password(password))
+            user_db.insert(user, utils.get_encrypt_password(password))
             session['userId']=user['userId']
             return redirect(url_for('index'))
         else:
@@ -66,7 +66,6 @@ def register():
 def login():
     if request.method=='POST':
         userName=request.form['userName']
-        print(type(userName))
         password=request.form['password']
         user_db=UserDatabase()
         error=None
@@ -85,7 +84,7 @@ def login():
             user, true_password=user_db.find_one_with_password({
                 'userName': userName
             })
-            if not util.check_password(password, true_password):
+            if not utils.check_password(password, true_password):
                 error='Incorrect password.'
 
         if error is None:
@@ -119,8 +118,9 @@ def logout():
 
 def login_required(view):
     @functools.wraps(view)
-    def wrapped_view(**kwagrs):
-        if 'user' not in g:
+    def wrapped_view(**kwargs):
+        if g.user is None:
+            flash('Please log in firstly.')
             return redirect(url_for('auth.login'))
         return view(**kwargs)
     return wrapped_view

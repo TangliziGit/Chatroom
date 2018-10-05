@@ -18,3 +18,7 @@ def check_password(password, true_password):
     if password==true_password:
         return True
     return False
+
+def get_room_id():
+    count=int(database.ChatroomDatabase().count())
+    return str(count+1)

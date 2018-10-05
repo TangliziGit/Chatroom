@@ -24,6 +24,7 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+{% block body %}
     <section class="content">
     {% block content%}{% endblock %}
     </section>
@@ -31,5 +32,6 @@
     {% for messages in get_flashed_messages() %}
     <div class="flash">{{ messages }}</div>
     {% endfor %}
+{% endblock %}
 </body>
 </html>

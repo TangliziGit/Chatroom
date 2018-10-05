@@ -43,8 +43,8 @@ class UserDatabase(BaseDatabase):
             self.db.insert({
                 'userId': user['userId'],
                 'userName': user['userName'],
-                'password': password, # self.__encrypt_with_salt(password),
-                'profile': user['profile']
+                'userProfile': user['userProfile'],
+                'password': password,
             })
 
     def remove(self, user_id):
@@ -79,7 +79,7 @@ class UserDatabase(BaseDatabase):
             res.pop("_id")
             res.pop("password")
             user=User(res)
-            userlist.append(User)
+            userlist.append(user)
         return userlist
 
     def count(self, query={}):
@@ -93,7 +93,7 @@ class User:
         try:
             self.userinfo['userId']=userinfo['userId']
             self.userinfo['userName']=userinfo['userName']
-            self.userinfo['profile']=userinfo['profile']
+            self.userinfo['userProfile']=userinfo['userProfile']
         except KeyError as err:
             print("Error in init User instance.")
             print("KeyError: ", err)
@@ -145,11 +145,11 @@ class MsgDatabase(BaseDatabase):
             pass
         else:
             self.db.insert({
-                'msgId': message['msgId'],
+                'messageId': message['messageId'],
                 'userId': message['userId'],
                 'roomId': message['roomId'],
-                'timeStamp': message['timeStamp'],
-                'content': message['content']
+                'messageTimeStamp': message['messageTimeStamp'],
+                'messageContent': message['messageContent']
             })
 
     def remove(self, msg_id):
@@ -180,11 +180,11 @@ class Message:
 
     def __init__(self, msginfo):
         try:
-            self.msginfo['msgId']=msginfo['msgId']
+            self.msginfo['messageId']=msginfo['messageId']
             self.msginfo['userId']=msginfo['userId']
             self.msginfo['roomId']=msginfo['roomId']
-            self.msginfo['timeStamp']=msginfo['timeStamp']
-            self.msginfo['content']=msginfo['content']
+            self.msginfo['messageTimeStamp']=msginfo['messageTimeStamp']
+            self.msginfo['messageContent']=msginfo['messageContent']
         except KeyError as err:
             print("Error in init Msg instance.")
             print("KeyError:", err)
@@ -209,7 +209,7 @@ class Message:
             try:
                 info=self.msginfo
                 info[key]=new_value
-                db.update(self.msginfo['msgId'], info)
+                db.update(self.msginfo['messageId'], info)
             except:
                 # err
                 pass
@@ -224,28 +224,108 @@ class Message:
         """
             params: 'query' is a dict, which can be followed to find items.
             exmaple:
-                Message.find({'userName': 'admin', 'timeStamp': {'$gt': '1'}})
+                Message.find({'userName': 'admin', 'messageTimeStamp': {'$gt': '1'}})
         """
         db=MsgDatabase()
-        # if query.get('time', None):
-        #     query['timeStamp']={'$gt': time}
-        #     res=db.find(
-        #         query, # {'timeStamp': {'$gt': time}},
-        #         limit,
-        #         skip
-        #     )
-        # else:
-        #     res=db.find(query, limit, skip)
         res=db.find(query, limit, skip)
         return res
 
+class ChatroomDatabase(BaseDatabase):
+    def __init__(self):
+        super(ChatroomDatabase, self).__init__()
+        self.db=None
+        if 'room_db' not in g:
+            self.db=self.con.Chatroom.rooms
+            g.room_db=self.db
+        else:
+            self.db=g.room_db
+
+    def insert(self, room): #, password):
+        res=list(self.db.find({'roomId': room['roomId']}))
+        if len(res)!=0:
+            pass
+        else:
+            self.db.insert({
+                'roomId':           room['roomId'],
+                'roomName':         room['roomName'],
+                'roomDescription':  room['roomDescription'],
+                'roomCapacity':         room['roomCapacity'],
+                # 'password':         password,
+            })
+
+    def remove(self, room_id):
+        pass
+
+    def update(self, room_id, room):
+        pass
+
+    def find_one(self, query):
+        res=list(self.db.find(query))
+        if len(res)<1:
+            return None
+        res=res[0]
+        res.pop("_id")
+        # res.pop("password")
+        room=Chatroom(res)
+        return room
+
+    def find(self, query, limit=1, skip=0):
+        roomlist=[]
+        for res in self.db.find(query)[skip:skip+limit]:
+            res.pop("_id")
+            # res.pop("password")
+            room=Chatroom(res)
+            roomlist.append(room)
+        return roomlist
+
+    def count(self, query={}):
+        cnt=self.db.count_documents(query)
+        return cnt
+
 class Chatroom:
-    room_id=0
+    roominfo={}
     userlist=None
 
-    def __init__(self, room_id):
-        self.room_id=room_id
+    def __init__(self, roominfo):
+        try:
+            self.roominfo['roomId']=roominfo['roomId']
+            self.roominfo['roomName']=roominfo['roomName']
+            self.roominfo['roomDescription']=roominfo['roomDescription']
+            self.roominfo['roomCapacity']=roominfo['roomCapacity']
+        except KeyError as err:
+            print("Error in init Chatroom instance.")
+            print("KeyError: ", err)
+        except AttributeError as err:
+            print("Error in init Chatroom instance.")
+            print("AttributeError:", err)
+        else:
+            pass
         self.userlist=UserList()
+
+    def __getitem__(self, key):
+        try:
+            if self.roominfo.get(key, None):
+                return self.roominfo[key]
+        except AttributeError as err:
+            print("Error in get roominfo.")
+            print("AttributeError:", err)
+        return None
+
+    def __setitem__(self, key, new_value):
+        db=ChatroomDatabase()
+        if self.roominfo.get(key, None):
+            try:
+                info=self.roominfo
+                info[key]=new_value
+                db.update_by_id(self.roominfo["roomId"], info)
+            except:
+                # err
+                pass
+            else:
+                self.roominfo[key]=new_value
+        else:
+            # err
+            pass
 
     def append(self, user):
         self.userlist.append(user)
@@ -257,18 +337,6 @@ class Chatroom:
         self.userlist.remove(query)
 
     def history(self, query={}, limit=1, skip=0):
-        # db=MsgDatabase()
-        # if time:
-        #     res=db.find(
-        #         {'timeStamp': {'$gt': time}, 'roomId': room_id},
-        #         limit,
-        #         skip
-        #     )
-        # else:
-        #     res=db.find({'roomId': room_id},
-        #         limit, skip
-        #     )
-        # return res
         query['roomId']=str(self.room_id)
         res=Message.history(query)
         return res

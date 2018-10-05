@@ -4,4 +4,16 @@
 
 {% block content %}
     <h1 style="text-align:center">Welcome to Light Chat Room!</h1>
+    <hr>
+
+    <h1>Create a new room</h1>
+    <form action='/chat/createroom' method='post'>
+        <label for='nameBox'>Room Name</label>
+        <p><input id='nameBox' name='roomName' required/></p>
+        <label for='descriptionBox'>Description</label>
+        <p><input id='descriptionBox' name='roomDescription' value='Welcome!'/></p>
+        <label for='capacityBox'>User Capacity</label>
+        <p><input id='capacityBox' name='roomCapacity' value='5' required/></p>
+        <input type='submit' value='Create' />
+    </form>
 {% endblock %}
