@@ -3,9 +3,10 @@ from flask import (
 )
 from flask_socketio import SocketIO
 
-from chatroom import database
+roomlist={}
 from chatroom import auth
 from chatroom import chat
+from chatroom import database
 
 def create_app():
     app=Flask(__name__)
@@ -28,3 +29,8 @@ def create_app():
 def create_socket(app):
     socket=SocketIO(app)
     return socket
+
+app=create_app()
+socket=create_socket(app)
+
+from chatroom import events

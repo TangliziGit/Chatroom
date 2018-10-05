@@ -1,16 +1,31 @@
 window.onbeforeunload=function () {
-    socketio.emit('disconnect', {});
+    socket.emit('leave', {});
 };
 
 $(document).ready(function(){
-    socketio=io.connect("ws://localhost:80/chatroom");
-    // socketio=io.connect("ws://45.32.45.1:80/chat", {transports: ['polling']});
+    socket=io.connect("ws://localhost:8080/chat");
+    // socket=io.connect("ws://45.32.45.1:80/chat", {transports: ['polling']});
 
-    socketio.emit('connect', {});
+    // build up websocket and join this room
+    socket.on('connect', function(){
+        socket.emit('join', {});
+    });
 
-    socketio.on('message', function(message){
+    // listen messages
+    socket.on('listen', function(message){
+        console.log(message)
         $("<p />", {
-            'class': 'messages',
+            'class': 'message',
+            'text': message['userName']+'(#'+message['userId']+'):'+
+                    decodeURI(message['messageContent'])
+        }).appendTo($('#chatBox'))
+    });
+
+    // listen users status
+    socket.on('status', function(message){
+        console.log(message)
+        $("<p />", {
+            'class': 'status',
             'text': message['userName']+'(#'+message['userId']+'):'+
                     message['content']
         }).appendTo($('#chatBox'))
@@ -18,8 +33,8 @@ $(document).ready(function(){
 
     // addEvents
     $("#submitBtn").click(function(){
-        socketio.emit("submit", {
-            "content": encodeURIComponent($("#textBox").val())
+        socket.emit("submit", {
+            "content": encodeURI($("#textBox").val())
         });
     });
 
@@ -30,3 +45,11 @@ $(document).ready(function(){
         }
     });
 });
+
+function leaveRoom(){
+    socket.emit('leave', {}, function(){
+        socket.disconnect();
+        
+        window.location.href=indexUrl;
+    })
+}

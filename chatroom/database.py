@@ -6,7 +6,8 @@ from flask import g
 # you can not import a module like `import config`
 # this would be wrong, because sys.path is not contain this path.
 # you should import with a package name.
-import chatroom.config
+from chatroom import config
+from chatroom import roomlist
 
 class BaseDatabase:
     db=None
@@ -140,7 +141,7 @@ class MsgDatabase(BaseDatabase):
             self.db=g.msg_db
 
     def insert(self, message):
-        res=list(self.db.find({'msgId': message['msgId']}))
+        res=list(self.db.find({'messageId': message['messageId']}))
         if len(res)!=0:
             pass
         else:
@@ -175,6 +176,10 @@ class MsgDatabase(BaseDatabase):
             msglist.append(msg)
         return msglist
         
+    def count(self, query={}):
+        cnt=self.db.count_documents(query)
+        return cnt
+
 class Message:
     msginfo={}
 
@@ -340,6 +345,16 @@ class Chatroom:
         query['roomId']=str(self.room_id)
         res=Message.history(query)
         return res
+
+    @staticmethod
+    def get_room(roomId):
+        if roomId not in roomlist:
+            room_db=ChatroomDatabase()
+            _room=room_db.find_one({
+                'roomId': roomId
+            })
+            roomlist[roomId]=_room
+        return roomlist[roomId]
 
 class UserList:
     userlist=[]

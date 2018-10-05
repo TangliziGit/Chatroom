@@ -14,8 +14,8 @@ from flask import g
 
 import chatroom
 from chatroom import config
-
-app=chatroom.create_app()
+from chatroom import (app, socket)
 
 if __name__=='__main__':
-    app.run(config.WEB_ADDR, port=config.WEB_PORT)
+    # app.run(config.WEB_ADDR, port=config.WEB_PORT)
+    socket.run(app, host=config.WEB_ADDR, port=config.WEB_PORT)

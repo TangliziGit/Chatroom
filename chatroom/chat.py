@@ -3,7 +3,7 @@ import functools
 from flask import (
     Blueprint, session, g, request, render_template, redirect,
     url_for, flash
-    )
+)
 
 import chatroom
 from chatroom import config
@@ -62,7 +62,13 @@ def chatroom():
         error="Room `%s` does not exit."%roomId
 
     if error is None:
-        return render_template('chatroom.html', **room.roominfo)
+        g.room=room
+        session['userId']=g.user['userId']
+        session['userName']=g.user['userName']
+        session['roomId']=room['roomId']
+
+        #print(session['userId']+session['roomId'])
+        return render_template('chatroom.html')# , **room.roominfo)
     else:
         flash(error)
         return redirect(url_for('index'))
