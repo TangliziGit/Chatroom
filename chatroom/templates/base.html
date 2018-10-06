@@ -15,7 +15,7 @@
             <li><a href="{{ url_for("auth.login") }}">Login</a></li>
             <li><a href="{{ url_for("auth.register") }}">Register</a></li>
             {% else %}
-            <li><span>{{ g.user['userName'] }}</span></li>
+            <li><a href="{{ url_for("user.detail", userId=g.user['userId']) }}">{{ g.user['userName'] }}</a></li>
             <li><a href="{{ url_for("auth.logout") }}">Logout</a></li>
             {% endif %}
         </ul>

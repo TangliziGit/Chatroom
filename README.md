@@ -7,15 +7,9 @@ A simple chatroom practice project, which uses flask and mongodb.
 ## functions
 1. http
     - chatroom operations(update, remove, etc.)
-    - user operations(update, remove, etc.)
-    - userdetail
+    - ? user operations(update, remove, etc.)
     - upload
     - download
-2. socketio
-    - connect
-    - disconnect
-    - submit
-    - listen
 3. upload files
 4. message with pictures
 5. calendar data

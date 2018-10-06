@@ -48,11 +48,14 @@ class UserDatabase(BaseDatabase):
                 'password': password,
             })
 
-    def remove(self, user_id):
-        pass
+    def remove(self, userId):
+        self.db.remove({
+            'userId': userId
+        })
 
-    def update(self, user_id, user):
-        pass
+    def update(self, userId, new_user, new_password):
+        self.remove(userId)
+        self.insert(new_user, new_password)
 
     def find_one(self, query):
         res=list(self.db.find(query))
@@ -254,7 +257,8 @@ class ChatroomDatabase(BaseDatabase):
                 'roomId':           room['roomId'],
                 'roomName':         room['roomName'],
                 'roomDescription':  room['roomDescription'],
-                'roomCapacity':         room['roomCapacity'],
+                'roomCapacity':     room['roomCapacity'],
+                'hostUserId':           room['hostUserId']
                 # 'password':         password,
             })
 
@@ -297,6 +301,7 @@ class Chatroom:
             self.roominfo['roomName']=roominfo['roomName']
             self.roominfo['roomDescription']=roominfo['roomDescription']
             self.roominfo['roomCapacity']=roominfo['roomCapacity']
+            self.roominfo['hostUserId']=roominfo['hostUserId']
         except KeyError as err:
             print("Error in init Chatroom instance.")
             print("KeyError: ", err)

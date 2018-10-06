@@ -37,7 +37,8 @@ def createroom():
             'roomId': utils.get_room_id(),
             'roomName': roomName,
             'roomDescription': roomDescription,
-            'roomCapacity': roomCapacity
+            'roomCapacity': roomCapacity,
+            'hostUserId': g.user['userId']
         })
         room_db.insert(room)
         return redirect(url_for('chat.chatroom', roomId=room['roomId']))

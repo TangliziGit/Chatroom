@@ -5,6 +5,7 @@ from flask_socketio import SocketIO
 
 roomlist={}
 from chatroom import auth
+from chatroom import user
 from chatroom import chat
 from chatroom import database
 
@@ -13,7 +14,9 @@ def create_app():
     app.config.from_pyfile('config.py')
     app.teardown_appcontext(database.BaseDatabase.teardown)
     # app.cli.add_command()
+
     app.register_blueprint(auth.bp)
+    app.register_blueprint(user.bp)
     app.register_blueprint(chat.bp)
 
     @app.route('/index', methods=['GET'])

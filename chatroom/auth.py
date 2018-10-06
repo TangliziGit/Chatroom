@@ -3,32 +3,14 @@ import functools
 from flask import (
     Blueprint, session, g, request, render_template, redirect,
     url_for, flash
-    )
+)
 
 import chatroom
 from chatroom import config
 from chatroom import utils
 from chatroom.database import *
 
-# ---------- init ----------
-# app=chatroom.create_app()
-# socket=chatroom.create_socket(app)
-# user_db=UserDatabase()
-# msg_db=MsgDatabase()
 bp=Blueprint('auth', __name__, url_prefix='/auth')
-
-# ---------- socket ----------
-
-# ---------- http ----------
-# @bp.route('/', methods=['GET'])
-# def root():
-#     return redirect(url_for('index'))
-# 
-# @bp.route('/index', methods=['GET'])
-# def index():
-#     if 'user' not in session:
-#         return redirect('login')
-#     return render_template('index.html', username=sesseon['userName'])
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -51,7 +33,7 @@ def register():
             user=User({
                 'userId': utils.get_user_id(),
                 'userName': userName,
-                'profile': 'None'
+                'userProfile': 'None'
             })
             user_db.insert(user, utils.get_encrypt_password(password))
             session['userId']=user['userId']

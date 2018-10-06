@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}User Detail{% endblock %}
+
+{% block content %}
+    <h1>User Detail - {{ user['userName'] }}</h1>
+
+    <table>
+        <tr>
+            <td>Name</td>
+            <td>{{ user['userName'] }}</td>
+        </tr>
+        <tr>
+            <td>Id</td>
+            <td>#{{ user['userId'] }}</td>
+        </tr>
+        <tr>
+            <td>Profile</td>
+            <td>{{ user['userProfile'] }}</td>
+        </tr>
+    </table>
+{% endblock %}
