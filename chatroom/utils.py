@@ -16,6 +16,10 @@ def get_message_id():
     count=int(database.MsgDatabase().count())
     return str(count)
 
+def get_file_id():
+    count=int(database.FileDatabase().count())
+    return str(count)
+
 def get_encrypt_password(password):
     salt=config.SALT
     password=password+salt

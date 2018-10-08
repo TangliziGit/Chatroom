@@ -22,17 +22,8 @@ def join(data):
     userName=session.get('userName')
     roomId=session.get('roomId')
 
-    user_db=UserDatabase()
-    # room_db=ChatroomDatabase()
-    user=user_db.find_one({
-        'userId': userId
-    })
-    # g.room=room_db.find_one({
-    #     'roomId': roomId
-    # })
-    
     join_room(roomId)
-    Chatroom.get_room(roomId).append(user)
+    RoomList().append(userId, roomId)
     emit('status', {
         'userId':               userId,
         'userName':             userName,

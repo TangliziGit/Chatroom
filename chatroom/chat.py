@@ -2,7 +2,7 @@ import functools
 
 from flask import (
     Blueprint, session, g, request, render_template, redirect,
-    url_for, flash
+    url_for, flash, send_from_directory
 )
 
 import chatroom
@@ -33,13 +33,13 @@ def createroom():
         error="Room `%s` has already be created."%roomName
 
     if error is None:
-        room=Chatroom({
+        room={
             'roomId': utils.get_room_id(),
             'roomName': roomName,
             'roomDescription': roomDescription,
             'roomCapacity': roomCapacity,
             'hostUserId': g.user['userId']
-        })
+        }
         room_db.insert(room)
         return redirect(url_for('chat.chatroom', roomId=room['roomId']))
     else:
@@ -52,15 +52,15 @@ def createroom():
 @login_required
 def chatroom():
     roomId=request.args.get('roomId', None)
+    room_list=RoomList()
 
-    room_db=ChatroomDatabase()
-    room=room_db.find_one({
-        'roomId': roomId
-    })
+    room=room_list.get(roomId)
     error=None
 
     if room is None:
         error="Room `%s` does not exit."%roomId
+    elif len(room['userlist'])>=room['roomCapacity']:
+        error="Room `%s` is already full."%roomId
 
     if error is None:
         g.room=room
@@ -68,10 +68,76 @@ def chatroom():
         session['userName']=g.user['userName']
         session['roomId']=room['roomId']
 
-        #print(session['userId']+session['roomId'])
-        return render_template('chatroom.html')# , **room.roominfo)
+        return render_template('chatroom.html')
     else:
         flash(error)
         return redirect(url_for('index'))
     
     return redirect(url_for('index'))
+
+@bp.route('/filelist', methods=['GET'])
+@login_required
+def filelist():
+    file_db=FileDatabase()
+    filelist=file_db.find({
+        'holdRoomId': g.room['roomId']
+    })
+
+    file_info_list=[]
+    for x in filelist:
+        file_info_list.append(x.fileinfo)
+
+    return json.dumps(file_info_list)
+
+@bp.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload():
+    if request.method=='POST':
+        file_=request.form['file']
+        file_db=FileDatabase()
+        error=None
+
+        if file_ is None:
+            error='File is required.'
+        elif g.room is None:
+            error='RoomId is required.'
+        # elif file_.size()>...:
+        #     error='...'
+
+        if error is None:
+            fileName=secure_filename(file_.filename)
+            file_db.insert({
+                'fileId':           utils.get_file_id(),
+                'fileName':         fileName,
+                'filePath':         utils.get_file_path(fileName),
+                'holdRoomId':       g.room['roomId'],
+                'holdUserId':       g.user['userId'],
+                'uploadTimeStamp':  utils.get_time(),
+                'downloadCount':    '0'
+            })
+            return 'Upload successfully.'
+        else:
+            return error
+    return render_template('file.html')
+
+@bp.route('/download', methods=['GET'])
+@login_required
+def download():
+    fileId=request.arg.get('fileId', None)
+    file_db=FileDatabase()
+    error=None
+
+    if fileId is None:
+        error='Please select a file.'
+    elif file_db.fild_one({
+        'fileId': fileId
+    }) is None:
+        error='File `%d` does not exit.'
+
+    if error is None:
+        file_=file_db.find_one({
+            'fileId': fileId
+        })
+        return send_from_directory(config.FILE_PREFIX, file_['filePath'], as_attendment=True)
+    else:
+        return error

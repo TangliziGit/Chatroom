@@ -1,5 +1,7 @@
 import hashlib
+import json
 from pymongo import MongoClient
+from redis import StrictRedis
 from flask import g
 
 # attend this:
@@ -7,26 +9,25 @@ from flask import g
 # this would be wrong, because sys.path is not contain this path.
 # you should import with a package name.
 from chatroom import config
-from chatroom import roomlist
 
-class BaseDatabase:
+class MongoBaseDatabase:
     db=None
     con=None
     def __init__(self):
         self.con=None
-        if 'con' not in g:
+        if 'mongo_con' not in g:
             self.con=MongoClient()
-            g.con=self.con
+            g.mongo_con=self.con
         else:
-            self.con=g.con
+            self.con=g.mongo_con
 
     @staticmethod
-    def teardown(self):
+    def teardown(exception):
         con=g.pop('con', None)
         if con is not None:
             con.close()
 
-class UserDatabase(BaseDatabase):
+class UserDatabase(MongoBaseDatabase):
     def __init__(self):
         super(UserDatabase, self).__init__()
         self.db=None
@@ -122,7 +123,7 @@ class User:
             try:
                 info=self.userinfo
                 info[key]=new_value
-                db.update_by_id(self.userinfo["userId"], info)
+                db.update(self.userinfo["userId"], info)
             except:
                 # err
                 pass
@@ -133,7 +134,7 @@ class User:
             pass
 
 
-class MsgDatabase(BaseDatabase):
+class MsgDatabase(MongoBaseDatabase):
     def __init__(self):
         super(MsgDatabase, self).__init__()
         self.db=None
@@ -238,7 +239,7 @@ class Message:
         res=db.find(query, limit, skip)
         return res
 
-class ChatroomDatabase(BaseDatabase):
+class ChatroomDatabase(MongoBaseDatabase):
     def __init__(self):
         super(ChatroomDatabase, self).__init__()
         self.db=None
@@ -258,7 +259,7 @@ class ChatroomDatabase(BaseDatabase):
                 'roomName':         room['roomName'],
                 'roomDescription':  room['roomDescription'],
                 'roomCapacity':     room['roomCapacity'],
-                'hostUserId':           room['hostUserId']
+                'hostUserId':       room['hostUserId']
                 # 'password':         password,
             })
 
@@ -270,12 +271,12 @@ class ChatroomDatabase(BaseDatabase):
 
     def find_one(self, query):
         res=list(self.db.find(query))
-        if len(res)<1:
+        if len(res)==0:
             return None
-        res=res[0]
-        res.pop("_id")
+        room=res[0]
+        room.pop("_id")
         # res.pop("password")
-        room=Chatroom(res)
+        room['userlist']=[]
         return room
 
     def find(self, query, limit=1, skip=0):
@@ -283,7 +284,8 @@ class ChatroomDatabase(BaseDatabase):
         for res in self.db.find(query)[skip:skip+limit]:
             res.pop("_id")
             # res.pop("password")
-            room=Chatroom(res)
+            room=res
+            room['userlist']=[]
             roomlist.append(room)
         return roomlist
 
@@ -291,112 +293,185 @@ class ChatroomDatabase(BaseDatabase):
         cnt=self.db.count_documents(query)
         return cnt
 
-class Chatroom:
-    roominfo={}
-    userlist=None
+class RedisBaseDatabase:
+    db=None
+    def __init__(self):
+        if 'redis_con' not in g:
+            print("Error: g.redis_con is None")
+            g.redis_con=StrictRedis()
+        self.db=g.redis_con
 
-    def __init__(self, roominfo):
+    @staticmethod
+    def teardown(exception):
+        pass
+
+class RoomList(RedisBaseDatabase):
+    def __init__(self):
+        super(RoomList, self).__init__()
+
+    def get(self, roomId):
+        room=self.db.get(roomId)
+        if room is None:
+            room=ChatroomDatabase().find_one({'roomId': roomId})
+            self.set(room)
+            return room
+        else:
+            room=json.loads(room)
+            return room
+
+    def set(self, roomId, roominfo):
+#       'roomId'
+#       'roomName'
+#       'roomDescription'
+#       'roomCapacity'
+#       'hostUserId'
+#       'userlist': [userid, ...]
+        # need to judge
+        room=json.dumps(roominfo)
+        self.db.set(roomId, room)
+    
+    def append(self, userId, roomId):
+        room=self.get(roomId)
+        room['userlist'].append(userId)
+        room['userlist']=list(set(room['userlist']))
+        self.set(roomId, room)
+
+# need to remove
+# class UserList:
+#     userlist=[]
+# 
+#     def __init__(self):
+#         pass
+# 
+#     def append(self, user):
+#         if not isinstance(user, User):
+#             return None
+#         self.userlist.append(user)
+#         self.dereplicate()
+# 
+#     def get_idlist(self):
+#         idlist=[]
+#         for x in userlist:
+#             idlist.append(x['userId'])
+#         return idlist
+# 
+#     def dereplicate(self):
+#         self.userlist=list(set(self.userlist))
+# 
+#     def remove(self, query):
+#         """
+#             params: 'query' is a dict, which can be followed to find items.
+#             exmaple:
+#                 userlist.remove({'userName': 'admin'})
+#         """
+#         res=[]
+#         for key, value in query.items():
+#             res.extend([x for x in self.userlist if not x[key]==value])
+#         self.userlist=res
+# 
+#     def find(self, query={}):
+#         """
+#             params: 'query' is a dict, which can be followed to find items.
+#             exmaple:
+#                 userlist.find({'userName': 'admin'})
+#         """
+#         res=[]
+#         for key, value in query.items():
+#             res.extend([x for x in self.userlist if x[key]==value])
+#         return tmplist
+#     
+#     def count(self):
+#         return len(self.userlist)
+
+class FileDatabase(MongoBaseDatabase):
+    def __init__(self):
+        super(UserDatabase, self).__init__()
+        self.db=None
+        if 'file_db' not in g:
+            self.db=self.con.Chatroom.files
+            g.file_db=self.db
+        else:
+            self.db=g.file_db
+
+    def insert(self, file_, file_self):
+        path=os.path.join(config.FILE_PREFIX, file_['filePath'])
+        file_self.save(path)
+        res=list(self.db.find({'fileId': file_['fileId']}))
+        if len(res)!=0:
+            return False
+        else:
+            self.db.insert({
+                'fileId':           file_['fileId'],
+                'fileName':         file_['fileName'],
+                'filePath':         file_['filePath'],
+                'holdRoomId':       file_['holdRoomId'],
+                'holdUserId':       file_['holdUserId'],
+                'uploadTimeStamp':  file_['uploadTimeStamp'],
+                'downloadCount':    file_['downloadCount']
+            })
+            return True
+
+    def remove(self, fileId):
+        file_=self.db.find_one(fileId)
+        path=os.path.join(config.FILE_PREFIX, file_['filePath'])
+        os.remove(path)
+        self.db.remove({
+            'fileId': fileId
+        })
+
+    # def update(self, userId, new_user, new_password):
+    #     self.remove(userId)
+    #     self.insert(new_user, new_password)
+
+    def find_one(self, query):
+        res=list(self.db.find(query))
+        if len(res)<1:
+            return None
+        res=res[0]
+        res.pop("_id")
+        res.pop("filePath")
+        file_=File(res)
+        return file_
+
+    def find(self, query, limit=1, skip=0):
+        filelist=[]
+        for res in self.db.find(query)[skip:skip+limit]:
+            res.pop("_id")
+            res.pop("filePath")
+            file_=File(res)
+            filelist.append(file_)
+        return filelist
+
+    def count(self, query={}):
+        cnt=self.db.count_documents(query)
+        return cnt
+
+class File:
+    fileinfo={}
+
+    def __init__(self, userinfo):
         try:
-            self.roominfo['roomId']=roominfo['roomId']
-            self.roominfo['roomName']=roominfo['roomName']
-            self.roominfo['roomDescription']=roominfo['roomDescription']
-            self.roominfo['roomCapacity']=roominfo['roomCapacity']
-            self.roominfo['hostUserId']=roominfo['hostUserId']
+            self.fileinfo['fileId']=fileinfo['fileId']
+            self.fileinfo['fileName']=fileinfo['fileName']
+            # self.fileinfo['filePath']=fileinfo['filePath']
+            self.fileinfo['holdRoomId']=fileinfo['holdRoomId']
+            self.fileinfo['holdUserId']=fileinfo['holdUserId']
+            self.fileinfo['uploadTimeStamp']=fileinfo['uploadTimeStamp']
+            self.fileinfo['downloadCount']=fileinfo['downloadCount']
         except KeyError as err:
-            print("Error in init Chatroom instance.")
+            print("Error in init File instance.")
             print("KeyError: ", err)
         except AttributeError as err:
-            print("Error in init Chatroom instance.")
+            print("Error in init File instance.")
             print("AttributeError:", err)
         else:
             pass
-        self.userlist=UserList()
 
     def __getitem__(self, key):
         try:
-            if self.roominfo.get(key, None):
-                return self.roominfo[key]
+            if self.fileinfo.get(key, None):
+                return self.fileinfo[key]
         except AttributeError as err:
-            print("Error in get roominfo.")
+            print("Error in get fileinfo.")
             print("AttributeError:", err)
         return None
-
-    def __setitem__(self, key, new_value):
-        db=ChatroomDatabase()
-        if self.roominfo.get(key, None):
-            try:
-                info=self.roominfo
-                info[key]=new_value
-                db.update_by_id(self.roominfo["roomId"], info)
-            except:
-                # err
-                pass
-            else:
-                self.roominfo[key]=new_value
-        else:
-            # err
-            pass
-
-    def append(self, user):
-        self.userlist.append(user)
-
-    def get_userlist(self):
-        return self.userlist
-
-    def remove(self, query):
-        self.userlist.remove(query)
-
-    def history(self, query={}, limit=1, skip=0):
-        query['roomId']=str(self.room_id)
-        res=Message.history(query)
-        return res
-
-    @staticmethod
-    def get_room(roomId):
-        if roomId not in roomlist:
-            room_db=ChatroomDatabase()
-            _room=room_db.find_one({
-                'roomId': roomId
-            })
-            roomlist[roomId]=_room
-        return roomlist[roomId]
-
-class UserList:
-    userlist=[]
-
-    def __init__(self):
-        pass
-
-    def append(self, user):
-        if not isinstance(user, User):
-            return None
-        self.userlist.append(user)
-        self.dereplicate()
-
-    def dereplicate(self):
-        self.userlist=list(set(self.userlist))
-
-    def remove(self, query):
-        """
-            params: 'query' is a dict, which can be followed to find items.
-            exmaple:
-                userlist.remove({'userName': 'admin'})
-        """
-        res=[]
-        for key, value in query.items():
-            res.extend([x for x in self.userlist if not x[key]==value])
-        self.userlist=res
-
-    def find(self, query={}):
-        """
-            params: 'query' is a dict, which can be followed to find items.
-            exmaple:
-                userlist.find({'userName': 'admin'})
-        """
-        res=[]
-        for key, value in query.items():
-            res.extend([x for x in self.userlist if x[key]==value])
-        return tmplist
-    
-    def count(self):
-        return len(self.userlist)
