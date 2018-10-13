@@ -9,7 +9,8 @@ A simple chatroom practice project, which uses flask, mongodb and redis.
 - /chat
     - /createroom
     - /chatroom
-    - /filelist     (not tested)
+    - /memberlist
+    - /filelist
     - /upload       (not tested)
     - /download     (not tested)
 - /user
@@ -23,8 +24,6 @@ A simple chatroom practice project, which uses flask, mongodb and redis.
 # TODO
 0. test
 1. database
-    - remove:UserList
-    - test for redis roomlist
 2. http
     - chatroom operations(update, remove, etc.)
     - user operations(update, remove, etc.)

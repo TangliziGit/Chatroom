@@ -61,7 +61,7 @@ def leave(data):
     roomId=session.get('roomId')
 
     leave_room(roomId)
-    Chatroom.get_room(roomId).remove(user)
+    RoomList().remove(userId, roomId)
     emit('status', {
         'userId':               userId,
         'userName':             userName,

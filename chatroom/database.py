@@ -9,6 +9,7 @@ from flask import g
 # this would be wrong, because sys.path is not contain this path.
 # you should import with a package name.
 from chatroom import config
+from chatroom import mongo_con, redis_con
 
 class MongoBaseDatabase:
     db=None
@@ -16,7 +17,9 @@ class MongoBaseDatabase:
     def __init__(self):
         self.con=None
         if 'mongo_con' not in g:
-            self.con=MongoClient()
+            print("Error: g.mongo_con is None")
+            # self.con=MongoClient()
+            self.con=mongo_con
             g.mongo_con=self.con
         else:
             self.con=g.mongo_con
@@ -297,8 +300,8 @@ class RedisBaseDatabase:
     db=None
     def __init__(self):
         if 'redis_con' not in g:
-            print("Error: g.redis_con is None")
-            g.redis_con=StrictRedis()
+            # print("Error: g.redis_con is None")
+            g.redis_con=redis_con
         self.db=g.redis_con
 
     @staticmethod
@@ -313,7 +316,7 @@ class RoomList(RedisBaseDatabase):
         room=self.db.get(roomId)
         if room is None:
             room=ChatroomDatabase().find_one({'roomId': roomId})
-            self.set(room)
+            self.set(roomId, room)
             return room
         else:
             room=json.loads(room)
@@ -336,56 +339,14 @@ class RoomList(RedisBaseDatabase):
         room['userlist']=list(set(room['userlist']))
         self.set(roomId, room)
 
-# need to remove
-# class UserList:
-#     userlist=[]
-# 
-#     def __init__(self):
-#         pass
-# 
-#     def append(self, user):
-#         if not isinstance(user, User):
-#             return None
-#         self.userlist.append(user)
-#         self.dereplicate()
-# 
-#     def get_idlist(self):
-#         idlist=[]
-#         for x in userlist:
-#             idlist.append(x['userId'])
-#         return idlist
-# 
-#     def dereplicate(self):
-#         self.userlist=list(set(self.userlist))
-# 
-#     def remove(self, query):
-#         """
-#             params: 'query' is a dict, which can be followed to find items.
-#             exmaple:
-#                 userlist.remove({'userName': 'admin'})
-#         """
-#         res=[]
-#         for key, value in query.items():
-#             res.extend([x for x in self.userlist if not x[key]==value])
-#         self.userlist=res
-# 
-#     def find(self, query={}):
-#         """
-#             params: 'query' is a dict, which can be followed to find items.
-#             exmaple:
-#                 userlist.find({'userName': 'admin'})
-#         """
-#         res=[]
-#         for key, value in query.items():
-#             res.extend([x for x in self.userlist if x[key]==value])
-#         return tmplist
-#     
-#     def count(self):
-#         return len(self.userlist)
+    def remove(self, userId, roomId):
+        room=self.get(roomId)
+        room['userlist'].remove(userId)
+        self.set(roomId, room)
 
 class FileDatabase(MongoBaseDatabase):
     def __init__(self):
-        super(UserDatabase, self).__init__()
+        super(FileDatabase, self).__init__()
         self.db=None
         if 'file_db' not in g:
             self.db=self.con.Chatroom.files
@@ -394,12 +355,13 @@ class FileDatabase(MongoBaseDatabase):
             self.db=g.file_db
 
     def insert(self, file_, file_self):
-        path=os.path.join(config.FILE_PREFIX, file_['filePath'])
-        file_self.save(path)
-        res=list(self.db.find({'fileId': file_['fileId']}))
-        if len(res)!=0:
+        try:
+            res=list(self.db.find({'fileId': file_['fileId']}))
+            if len(res)!=0:
+                return False
+            file_self.save(file_['filePath'])
             return False
-        else:
+        except:
             self.db.insert({
                 'fileId':           file_['fileId'],
                 'fileName':         file_['fileName'],

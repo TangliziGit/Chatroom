@@ -67,6 +67,7 @@ def chatroom():
         session['userId']=g.user['userId']
         session['userName']=g.user['userName']
         session['roomId']=room['roomId']
+        # room_list.append(g.user['userId'], room['roomId'])
 
         return render_template('chatroom.html')
     else:
@@ -75,12 +76,42 @@ def chatroom():
     
     return redirect(url_for('index'))
 
+@bp.route('/memberlist', methods=['GET'])
+def memberlist():
+    roomId=request.args.get('roomId', None)
+    room_list=RoomList()
+    user_db=UserDatabase()
+    room=room_list.get(roomId)
+    error=None
+
+    if roomId is None:
+        error='roomId is required.'
+    elif room is None:
+        error="Room `%s` does not exit."%roomId
+
+    if error is None:
+        userlist=[]
+        for userId in room['userlist']:
+            user=user_db.find_one({
+                'userId': userId
+            })
+            userlist.append({
+                'userId': userId,
+                'userName': user['userName']
+            })
+        return json.dumps(userlist)
+    else:
+        return error
+
 @bp.route('/filelist', methods=['GET'])
 @login_required
 def filelist():
+    if 'roomId' not in session:
+        return 'Please enter a chatroom firstly.'
+
     file_db=FileDatabase()
     filelist=file_db.find({
-        'holdRoomId': g.room['roomId']
+        'holdRoomId': session['roomId']
     })
 
     file_info_list=[]
@@ -89,36 +120,38 @@ def filelist():
 
     return json.dumps(file_info_list)
 
-@bp.route('/upload', methods=['GET', 'POST'])
+@bp.route('/upload', methods=['POST'])
 @login_required
 def upload():
-    if request.method=='POST':
-        file_=request.form['file']
-        file_db=FileDatabase()
-        error=None
+    roomId=request.form['roomId']
+    file_=request.form['file']
+    file_db=FileDatabase()
+    error=None
 
-        if file_ is None:
-            error='File is required.'
-        elif g.room is None:
-            error='RoomId is required.'
-        # elif file_.size()>...:
-        #     error='...'
+    if file_ is None:
+        error='File is required.'
+    elif 'roomId' not in session:
+        error='Please enter a chatroom firstly.'
+    # elif file_.size()>...:
+    #     error='...'
 
-        if error is None:
-            fileName=secure_filename(file_.filename)
-            file_db.insert({
-                'fileId':           utils.get_file_id(),
-                'fileName':         fileName,
-                'filePath':         utils.get_file_path(fileName),
-                'holdRoomId':       g.room['roomId'],
-                'holdUserId':       g.user['userId'],
-                'uploadTimeStamp':  utils.get_time(),
-                'downloadCount':    '0'
-            })
+    if error is None:
+        fileName=secure_filename(file_.filename)
+        isdone=file_db.insert({
+            'fileId':           utils.get_file_id(),
+            'fileName':         fileName,
+            'filePath':         utils.get_file_path(fileName),
+            'holdRoomId':       roomId,
+            'holdUserId':       session['userId'],
+            'uploadTimeStamp':  utils.get_time(),
+            'downloadCount':    '0'
+        }, file_)
+        if isdone:
             return 'Upload successfully.'
         else:
-            return error
-    return render_template('file.html')
+            return 'Upload failed.'
+    else:
+        return error
 
 @bp.route('/download', methods=['GET'])
 @login_required

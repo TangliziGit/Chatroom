@@ -1,5 +1,6 @@
 import hashlib
 import time
+import os
 
 from chatroom import config
 from chatroom import database
@@ -19,6 +20,9 @@ def get_message_id():
 def get_file_id():
     count=int(database.FileDatabase().count())
     return str(count)
+
+def get_file_path(filename):
+    return os.path.join(config.FILE_PREFIX, filename)
 
 def get_encrypt_password(password):
     salt=config.SALT

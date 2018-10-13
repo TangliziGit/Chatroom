@@ -6,24 +6,29 @@ from flask import (
 )
 from flask_socketio import SocketIO
 
+
+mongo_con=MongoClient()
+redis_con=StrictRedis()
+
 from chatroom import auth
 from chatroom import user
 from chatroom import chat
 from chatroom import database
 
 def create_app():
-    mongo_con=MongoClient()
-    redis_con=StrictRedis()
-
     app=Flask(__name__)
     app.config.from_pyfile('config.py')
     app.teardown_appcontext(database.MongoBaseDatabase.teardown)
     app.teardown_appcontext(database.RedisBaseDatabase.teardown)
     # app.cli.add_command()
 
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(user.bp)
-    app.register_blueprint(chat.bp)
+    @app.before_request
+    def connect_db():
+        if 'mongo_con' not in g:
+            g.mongo_con=mongo_con
+        if 'redis_con' not in g:
+            g.redis_con=redis_con
+            print(g.redis_con)
 
     @app.route('/index', methods=['GET'])
     def index():
@@ -33,12 +38,9 @@ def create_app():
     def page_not_find(error):
         return render_template('404.html'), 404
 
-    @app.before_request
-    def connect_db():
-        if 'mongo_con' not in g:
-            g.mongo_con=mongo_con
-        if 'redis_con' not in g:
-            g.redis_con=redis_con
+    app.register_blueprint(auth.bp)
+    app.register_blueprint(user.bp)
+    app.register_blueprint(chat.bp)
 
     return app
 
