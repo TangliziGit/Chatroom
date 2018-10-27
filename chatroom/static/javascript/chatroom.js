@@ -1,9 +1,5 @@
-window.onbeforeunload=function () {
-    socket.emit('leave', {});
-};
-
 $(document).ready(function(){
-    socket=io.connect("ws://localhost:8080/chat");
+    socket=io.connect(serverWebSocket+"/chat");
     // socket=io.connect("ws://45.32.45.1:80/chat", {transports: ['polling']});
 
     // build up websocket and join this room
@@ -18,7 +14,7 @@ $(document).ready(function(){
             'class': 'message',
             'text': message['userName']+'(#'+message['userId']+'):'+
                     decodeURI(message['messageContent'])
-        }).appendTo($('#chatBox'))
+        }).appendTo($('#chatBox'));
     });
 
     // listen users status
@@ -28,7 +24,7 @@ $(document).ready(function(){
             'class': 'status',
             'text': message['userName']+'(#'+message['userId']+'):'+
                     message['content']
-        }).appendTo($('#chatBox'))
+        }).appendTo($('#chatBox'));
     });
 
     // addEvents
@@ -50,6 +46,6 @@ function leaveRoom(){
     socket.emit('leave', {}, function(){
         socket.disconnect();
         
-        window.location.href=indexUrl;
-    })
+        window.location.href=serverUrl+"/index";
+    });
 }

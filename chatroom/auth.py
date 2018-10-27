@@ -40,9 +40,11 @@ def register():
             return redirect(url_for('index'))
         else:
             flash(error)
-            return render_template('register.html')
+            # return render_template('register.html')
+            return render_template('index.html', registerToggle=True)
     else:
-        return render_template('register.html')
+        # return render_template('register.html')
+        return render_template('index.html', registerToggle=True)
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -77,9 +79,11 @@ def login():
             return redirect(url_for('index'))
         else:
             flash(error)
-            return render_template('login.html')
+            # return render_template('login.html')
+            return render_template('index.html', loginToggle=True)
     else:
-        return render_template('login.html')
+        # return render_template('login.html')
+        return render_template('index.html', loginToggle=True)
 
 # a good way for each request with auth
 @bp.before_app_request

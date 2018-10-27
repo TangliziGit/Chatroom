@@ -38,7 +38,8 @@ def createroom():
             'roomName': roomName,
             'roomDescription': roomDescription,
             'roomCapacity': roomCapacity,
-            'hostUserId': g.user['userId']
+            'hostUserId': g.user['userId'],
+            'hostUserName': g.user['userName']
         }
         room_db.insert(room)
         return redirect(url_for('chat.chatroom', roomId=room['roomId']))
@@ -76,18 +77,26 @@ def chatroom():
     
     return redirect(url_for('index'))
 
+@bp.route('/roomlist', methods=['GET'])
+def roomlist():
+    room_list=RoomList()
+    rooms=room_list.get_all()
+    return json.dumps(rooms)
+
 @bp.route('/memberlist', methods=['GET'])
 def memberlist():
     roomId=request.args.get('roomId', None)
     room_list=RoomList()
     user_db=UserDatabase()
-    room=room_list.get(roomId)
+    room=None
     error=None
 
     if roomId is None:
         error='roomId is required.'
-    elif room is None:
-        error="Room `%s` does not exit."%roomId
+    else:
+        room=room_list.get(roomId)
+        if room is None:
+            error="Room `%s` does not exit."%roomId
 
     if error is None:
         userlist=[]

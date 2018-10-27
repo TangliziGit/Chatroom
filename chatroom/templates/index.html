@@ -2,18 +2,114 @@
 
 {% block title %}Index{% endblock %}
 
-{% block content %}
-    <h1 style="text-align:center">Welcome to Light Chat Room!</h1>
-    <hr>
+{% block column %}
+        <ul id="myTab" class="nav nav-tabs">
+            <li class="active">
+                <a href="#indexTab" data-toggle="tab">Index</a></li>
+            <li><a href="#userTab" data-toggle="tab">User</a></li>
 
-    <h1>Create a new room</h1>
-    <form action='/chat/createroom' method='post'>
-        <label for='nameBox'>Room Name</label>
-        <p><input id='nameBox' name='roomName' required/></p>
-        <label for='descriptionBox'>Description</label>
-        <p><input id='descriptionBox' name='roomDescription' value='Welcome!'/></p>
-        <label for='capacityBox'>User Capacity</label>
-        <p><input id='capacityBox' name='roomCapacity' value='5' required/></p>
-        <input type='submit' value='Create' />
-    </form>
+            <div class="btn-group btn-group-sm pull-right">
+                <button class="btn btn-default" data-toggle="modal" data-target="#loginModal">Login</button>
+                <button class="btn btn-default" data-toggle="modal" data-target="#registerModal">Register</button>
+            </div>
+        </ul>
+
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade in active" id="indexTab">
+                <div class="pull-left"><button class="btn btn-xs btn-primary" data-toggle="modal" data-target="#createRoomModal">Create Room</button></div>
+                <div class="pull-right"><p> 21 Users - 5 Rooms</p></div>
+
+                    <!-- 模态框（Modal） -->
+                    <div class="modal fade" id="createRoomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title" id="createRoomLabel">Create Room</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form action='/chat/createroom' method='post'>
+                                            <label for='nameBox'>Room Name</label>
+                                            <p><input id='nameBox' name='roomName' required/></p>
+                                            <label for='descriptionBox'>Description</label>
+                                            <p><input id='descriptionBox' name='roomDescription' value='Welcome!'/></p>
+                                            <label for='capacityBox'>User Capacity</label>
+                                            <p><input id='capacityBox' name='roomCapacity' value='5' required/></p>
+                                            <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
+                                            <input type="submit" class="btn btn-primary" value="Submit" />
+                                    </form>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+                    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title" id="loginLabel">Login</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form action='/auth/login' method='post'>
+                                        <label for='nameBox'>UserName</label>
+                                        <p><input type='text' name='userName' value='' id='nameBox' required/></p>
+                                        <label for='passwordBox'>Password</label>
+                                        <p><input type='password' name='password' value='' id='passwordBox' required/></p>
+                                        <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
+                                        <input type="submit" class="btn btn-primary" value="Login" />
+                                    </form>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+                    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title" id="registerLabel">Register</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form action='/auth/register' method='post'>
+                                        <label for='nameBox'>UserName</label>
+                                        <p><input type='text' name='userName' value='' id='nameBox' required></p>
+                                        <label for='passwordBox'>Password</label>
+                                        <p><input type='password' name='password' value='' id='passwordBox' required></p>
+                                        <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
+                                        <input type="submit" class="btn btn-primary" value="Register" />
+                                    </form>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Room Id</th>
+                        <th>Name</th>
+                        <th>Creator</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="rooms-holder">
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="userTab">
+            <p>user here</p>
+        </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for("static", filename="javascript/index.js")}}"></script>
+
+    <script>
+        {% if loginToggle %}
+        $("#loginModal").modal();
+        {% endif %}
+        {% if registerToggle %}
+        $("#registerModal").modal();
+        {% endif %}
+    </script>
 {% endblock %}

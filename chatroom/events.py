@@ -8,6 +8,7 @@ from flask import (
 from flask_socketio import (
     join_room, leave_room, emit, send
 )
+import flask_socketio as socketio
 
 from chatroom import config
 from chatroom import utils
@@ -29,6 +30,8 @@ def join(data):
         'userName':             userName,
         'content':              "Entered room."
     }, room=roomId)
+    print(request.sid)
+    print(socket.server.manager.rooms)
 
 @socket.on('submit', namespace='/chat')
 def submit(data):
@@ -56,6 +59,7 @@ def submit(data):
 
 @socket.on('leave', namespace='/chat')
 def leave(data):
+    print("Leave")
     userId=session.get('userId')
     userName=session.get('userName')
     roomId=session.get('roomId')
@@ -67,3 +71,4 @@ def leave(data):
         'userName':             userName,
         'content':              "Left room."
     }, room=roomId)
+    socketio.disconnect()

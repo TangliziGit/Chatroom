@@ -28,7 +28,6 @@ def create_app():
             g.mongo_con=mongo_con
         if 'redis_con' not in g:
             g.redis_con=redis_con
-            print(g.redis_con)
 
     @app.route('/index', methods=['GET'])
     def index():

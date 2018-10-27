@@ -262,7 +262,8 @@ class ChatroomDatabase(MongoBaseDatabase):
                 'roomName':         room['roomName'],
                 'roomDescription':  room['roomDescription'],
                 'roomCapacity':     room['roomCapacity'],
-                'hostUserId':       room['hostUserId']
+                'hostUserId':       room['hostUserId'],
+                'hostUserName':     room['hostUserName']
                 # 'password':         password,
             })
 
@@ -283,14 +284,18 @@ class ChatroomDatabase(MongoBaseDatabase):
         return room
 
     def find(self, query, limit=1, skip=0):
-        roomlist=[]
-        for res in self.db.find(query)[skip:skip+limit]:
-            res.pop("_id")
-            # res.pop("password")
-            room=res
-            room['userlist']=[]
-            roomlist.append(room)
-        return roomlist
+        rooms=[]
+        roomlist=RoomList()
+        for room in self.db.find(query)[skip:skip+limit]:
+            room.pop('_id')
+            online_room=roomlist.get(room['roomId'])
+
+            if online_room is not None:
+                room=online_room
+            else:
+                room['userlist']=[]
+            rooms.append(room)
+        return rooms
 
     def count(self, query={}):
         cnt=self.db.count_documents(query)
@@ -308,12 +313,42 @@ class RedisBaseDatabase:
     def teardown(exception):
         pass
 
+class SessionToUserDB(RedisBaseDatabase):
+    def __init(self):
+        super(SessionToUserDB, self).__init__()
+
+    def get(self, sid):
+        return self.db.get("Chatroom:SId:"+sid)
+
+    def set(self, sid, userId):
+        self.db.set("Chatroom:SId:"+sid, userId)
+        self.db.set("Chatroom:UserId:"+userId, sid)
+
+    def remove(self, sid):
+        self.db.delete("Chatroom:SId"+sid)
+        self.db.delete("Chatroom:UserId"+userId)
+
+class UserToSessionDB(RedisBaseDatabase):
+    def __init(self):
+        super(UserToSessionDB, self).__init__()
+
+    def get(self, userId):
+        return self.db.get("Chatroom:UserId:"+userId)
+
+    def set(self, userId, sid):
+        self.db.set("Chatroom:SId:"+sid, userId)
+        self.db.set("Chatroom:UserId:"+userId, sid)
+
+    def remove(self, userId):
+        self.db.delete("Chatroom:SId:"+sid)
+        self.db.delete("Chatroom:UserId"+userId)
+
 class RoomList(RedisBaseDatabase):
     def __init__(self):
         super(RoomList, self).__init__()
 
     def get(self, roomId):
-        room=self.db.get(roomId)
+        room=self.db.get("Chatroom:Room:"+roomId)
         if room is None:
             room=ChatroomDatabase().find_one({'roomId': roomId})
             self.set(roomId, room)
@@ -321,6 +356,17 @@ class RoomList(RedisBaseDatabase):
         else:
             room=json.loads(room)
             return room
+
+    # need test
+    def get_all(self):
+        rooms=[]
+        for key in self.db.keys():
+            key=key.decode()
+            if "Chatroom:Room:" not in key:
+                continue
+            room=self.db.get(key).decode()
+            rooms.append(json.loads(room))
+        return rooms
 
     def set(self, roomId, roominfo):
 #       'roomId'
@@ -331,7 +377,7 @@ class RoomList(RedisBaseDatabase):
 #       'userlist': [userid, ...]
         # need to judge
         room=json.dumps(roominfo)
-        self.db.set(roomId, room)
+        self.db.set("Chatroom:Room:"+roomId, room)
     
     def append(self, userId, roomId):
         room=self.get(roomId)

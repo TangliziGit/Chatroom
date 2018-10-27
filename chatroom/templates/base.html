@@ -5,10 +5,12 @@
     <meta name='viewport' content='width=device-width, user-scalable=no' />
 
     <title>Light Chat Room::{% block title %}{% endblock %}</title>
+    <!-- link rel="stylesheet" href="{{ url_for("static", filename="stylesheet/style.css") }}" / -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
     <script src={{url_for("static", filename="javascript/jquery-3.3.1.min.js")}}></script>
-    <link rel="stylesheet" href="{{ url_for("static", filename="stylesheet/style.css") }}" />
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <nav>
+    <!--nav>
         <h1>Light Chatroom</h1>
         <ul>
             {% if not g.user %}
@@ -19,19 +21,28 @@
             <li><a href="{{ url_for("auth.logout") }}">Logout</a></li>
             {% endif %}
         </ul>
-    </nav>
+    </nav-->
 
     {% block head %}{% endblock %}
 </head>
 <body>
-{% block body %}
-    <section class="content">
-    {% block content%}{% endblock %}
-    </section>
+    <script>
+        var serverUrl="http://localhost";
+        var serverWebSocket="ws://localhost";
+    </script>
 
-    {% for messages in get_flashed_messages() %}
-    <div class="flash">{{ messages }}</div>
-    {% endfor %}
-{% endblock %}
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="col-md-6 col-md-offset-3 span12">
+                {% for messages in get_flashed_messages() %}
+                <div class="flash alert alert-warning">{{ messages }}</div>
+                {% endfor %}
+
+                {% block column %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    {% block scripts %}{% endblock %}
 </body>
 </html>

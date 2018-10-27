@@ -2,14 +2,9 @@
 
 {% block title %}{{ g.room['roomName'] }}{% endblock %}
 {% block head %}
-    <script>
-        var indexUrl='{{ url_for('index') }}';
-    </script>
-    <script src="{{ url_for('static', filename='javascript/chatroom.js') }}"></script>
-    <script src="{{ url_for('static', filename='javascript/socket.io.min.js') }}"></script>
 {% endblock %}
 
-{% block content %}
+{% block column %}
     <h1>Chatroom - {{ g.room['roomName'] }} #{{ g.room['roomId'] }}</h1>
     <p>{{ roomDescription }}</p>
     <table id='messageTable'>
@@ -29,4 +24,9 @@
     <div id='chatBox'>
         <!-- chat messages -->
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='javascript/socket.io.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='javascript/chatroom.js') }}"></script>
 {% endblock %}
