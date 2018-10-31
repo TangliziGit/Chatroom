@@ -15,19 +15,19 @@ from chatroom import user
 from chatroom import chat
 from chatroom import database
 
-def create_app():
+def create_app_socket():
     app=Flask(__name__)
     app.config.from_pyfile('config.py')
     app.teardown_appcontext(database.MongoBaseDatabase.teardown)
     app.teardown_appcontext(database.RedisBaseDatabase.teardown)
+    socket=SocketIO(app)
     # app.cli.add_command()
 
     @app.before_request
     def connect_db():
-        if 'mongo_con' not in g:
-            g.mongo_con=mongo_con
-        if 'redis_con' not in g:
-            g.redis_con=redis_con
+        g.mongo_con=mongo_con
+        g.redis_con=redis_con
+        g.socket=socket
 
     @app.route('/index', methods=['GET'])
     def index():
@@ -41,13 +41,8 @@ def create_app():
     app.register_blueprint(user.bp)
     app.register_blueprint(chat.bp)
 
-    return app
+    return (app, socket)
 
-def create_socket(app):
-    socket=SocketIO(app)
-    return socket
-
-app=create_app()
-socket=create_socket(app)
+app, socket=create_app_socket()
 
 from chatroom import events

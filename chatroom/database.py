@@ -1,5 +1,6 @@
 import hashlib
 import json
+import time
 from pymongo import MongoClient
 from redis import StrictRedis
 from flask import g
@@ -313,36 +314,6 @@ class RedisBaseDatabase:
     def teardown(exception):
         pass
 
-class SessionToUserDB(RedisBaseDatabase):
-    def __init(self):
-        super(SessionToUserDB, self).__init__()
-
-    def get(self, sid):
-        return self.db.get("Chatroom:SId:"+sid)
-
-    def set(self, sid, userId):
-        self.db.set("Chatroom:SId:"+sid, userId)
-        self.db.set("Chatroom:UserId:"+userId, sid)
-
-    def remove(self, sid):
-        self.db.delete("Chatroom:SId"+sid)
-        self.db.delete("Chatroom:UserId"+userId)
-
-class UserToSessionDB(RedisBaseDatabase):
-    def __init(self):
-        super(UserToSessionDB, self).__init__()
-
-    def get(self, userId):
-        return self.db.get("Chatroom:UserId:"+userId)
-
-    def set(self, userId, sid):
-        self.db.set("Chatroom:SId:"+sid, userId)
-        self.db.set("Chatroom:UserId:"+userId, sid)
-
-    def remove(self, userId):
-        self.db.delete("Chatroom:SId:"+sid)
-        self.db.delete("Chatroom:UserId"+userId)
-
 class RoomList(RedisBaseDatabase):
     def __init__(self):
         super(RoomList, self).__init__()
@@ -365,7 +336,9 @@ class RoomList(RedisBaseDatabase):
             if "Chatroom:Room:" not in key:
                 continue
             room=self.db.get(key).decode()
-            rooms.append(json.loads(room))
+            room=json.loads(room)
+            room['userlist']=[]
+            rooms.append(room)
         return rooms
 
     def set(self, roomId, roominfo):

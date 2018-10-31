@@ -33,7 +33,7 @@
 
     <div class="container-fluid">
         <div class="row-fluid">
-            <div class="col-md-6 col-md-offset-3 span12">
+            <div class="col-md-6 col-md-offset-3 span12" style="padding: 10px;margin-top:40px;border:1px solid gray;border-radius:10px;">
                 {% for messages in get_flashed_messages() %}
                 <div class="flash alert alert-warning">{{ messages }}</div>
                 {% endfor %}

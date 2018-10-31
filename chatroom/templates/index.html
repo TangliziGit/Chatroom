@@ -96,8 +96,14 @@
                 </tbody>
             </table>
         </div>
+
         <div class="tab-pane fade" id="userTab">
-            <p>user here</p>
+            <h1>User: {{ g.user['userName'] }}</h1>
+            <dl contenteditable="false">
+                <dt><h3>Name:    {{ g.user['userName'] }}</h3></dt>
+                <dt><h3>Id:      #{{ g.user['userId'] }}</h3></dt>
+                <dt><h3>Profile: {{ g.user['userProfile'] }}</h3></dt>
+            </dl>
         </div>
 {% endblock %}
 
