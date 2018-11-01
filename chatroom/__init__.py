@@ -2,7 +2,7 @@ from redis import StrictRedis
 from pymongo import MongoClient
 
 from flask import (
-    Flask, render_template, g
+    Flask, render_template, redirect, g
 )
 from flask_socketio import SocketIO
 
@@ -32,6 +32,10 @@ def create_app_socket():
     @app.route('/index', methods=['GET'])
     def index():
         return render_template('index.html')
+
+    @app.route('/', methods=['GET'])
+    def root():
+        return redirect('/index')
 
     @app.errorhandler(404)
     def page_not_find(error):

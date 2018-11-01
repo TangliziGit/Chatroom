@@ -7,6 +7,21 @@
     <title>Light Chat Room::{% block title %}{% endblock %}</title>
     <!-- link rel="stylesheet" href="{{ url_for("static", filename="stylesheet/style.css") }}" / -->
     <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
+    <style>
+    body {
+        background:url('{{ url_for("static", filename="image/background.jpg") }}') center;
+        background-size: cover;
+        background-position:right top;
+    }
+
+    .column {
+        padding: 10px;
+        margin-top: 40px;
+        border: 1px solid gray;
+        border-radius: 10px;
+        background-color: #ffffff;
+    }
+    </style>
     <script src={{url_for("static", filename="javascript/jquery-3.3.1.min.js")}}></script>
     <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
@@ -32,8 +47,8 @@
     </script>
 
     <div class="container-fluid">
-        <div class="row-fluid">
-            <div class="col-md-6 col-md-offset-3 span12" style="padding: 10px;margin-top:40px;border:1px solid gray;border-radius:10px;">
+        <div class="row-fluid ">
+            <div class="col-md-6 col-md-offset-3 span12 column" style="">
                 {% for messages in get_flashed_messages() %}
                 <div class="flash alert alert-warning">{{ messages }}</div>
                 {% endfor %}
