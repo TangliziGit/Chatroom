@@ -24,7 +24,7 @@ def join(data):
     roomId=session.get('roomId')
 
     join_room(roomId)
-    RoomList().append(userId, roomId)
+    # RoomList().append(userId, roomId)
     emit('status', {
         'userId':               userId,
         'userName':             userName,
@@ -35,6 +35,9 @@ def join(data):
 
 @socket.on('submit', namespace='/chat')
 def submit(data):
+    if data['content']=='':
+        return
+
     userId=session.get('userId')
     userName=session.get('userName')
     roomId=session.get('roomId')
@@ -65,7 +68,7 @@ def leave(data):
     roomId=session.get('roomId')
 
     leave_room(roomId)
-    RoomList().remove(userId, roomId)
+    # RoomList().remove(userId, roomId)
     emit('status', {
         'userId':               userId,
         'userName':             userName,

@@ -9,7 +9,7 @@ $(document).ready(function(){
 
     // listen messages
     socket.on('listen', function(message){
-        console.log(message)
+        console.log(message);
         $("<p />", {
             'class': 'message',
             'text': message['userName']+'(#'+message['userId']+'):'+
@@ -19,7 +19,7 @@ $(document).ready(function(){
 
     // listen users status
     socket.on('status', function(message){
-        console.log(message)
+        console.log(message);
         $("<p />", {
             'class': 'status',
             'text': message['userName']+'(#'+message['userId']+'):'+
@@ -32,6 +32,7 @@ $(document).ready(function(){
         socket.emit("submit", {
             "content": encodeURI($("#textBox").val())
         });
+        $("#textBox").val("");
     });
 
     $("#textBox").keydown(function(event){
