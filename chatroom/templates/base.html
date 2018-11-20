@@ -21,6 +21,24 @@
         border-radius: 10px;
         background-color: #ffffff;
     }
+
+    .tabWrap {
+        padding: 15px;
+    }
+
+    .card {
+        position:relative;
+        display:block;
+        margin-bottom:.75rem;
+        background-color:#fff;
+        border-radius:.25rem;
+        border:1px solid rgba(0,0,0,.125);
+        margin-left: 0px;
+        margin-top: 15px;
+    }
+    .card-block {
+        padding:1.25rem
+    }
     </style>
     <script src={{url_for("static", filename="javascript/jquery-3.3.1.min.js")}}></script>
     <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -42,13 +60,13 @@
 </head>
 <body>
     <script>
-        var serverUrl="http://localhost";
-        var serverWebSocket="ws://localhost";
+        var serverUrl="http://202.182.102.117";
+        var serverWebSocket="ws://202.182.102.117";
     </script>
 
     <div class="container-fluid">
         <div class="row-fluid ">
-            <div class="col-md-6 col-md-offset-3 span12 column" style="">
+            <div class="col-md-8 col-md-offset-2 span12 column" style="">
                 {% for messages in get_flashed_messages() %}
                 <div class="flash alert alert-warning">{{ messages }}</div>
                 {% endfor %}

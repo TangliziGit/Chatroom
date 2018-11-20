@@ -4,8 +4,8 @@
 
 {% block column %}
         <ul id="myTab" class="nav nav-tabs">
-            <li class="active">
-                <a href="#indexTab" data-toggle="tab">Index</a></li>
+            <li class="active"><a href="#mainTab" data-toggle="tab">Main</a></li>
+            <li><a href="#indexTab" data-toggle="tab">Index</a></li>
             <li><a href="#userTab" data-toggle="tab">User</a></li>
 
             <div class="btn-group btn-group-sm pull-right">
@@ -15,96 +15,141 @@
         </ul>
 
         <div id="myTabContent" class="tab-content">
-            <div class="tab-pane fade in active" id="indexTab">
+            <div class="tab-pane fade tabWrap" id="indexTab">
                 <div class="pull-left"><button class="btn btn-xs btn-primary" data-toggle="modal" data-target="#createRoomModal">Create Room</button></div>
                 <div class="pull-right"><p> 21 Users - 5 Rooms</p></div>
 
-                    <!-- 模态框（Modal） -->
-                    <div class="modal fade" id="createRoomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                    <h4 class="modal-title" id="createRoomLabel">Create Room</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <form action='/chat/createroom' method='post'>
-                                            <label for='nameBox'>Room Name</label>
-                                            <p><input id='nameBox' name='roomName' required/></p>
-                                            <label for='descriptionBox'>Description</label>
-                                            <p><input id='descriptionBox' name='roomDescription' value='Welcome!'/></p>
-                                            <label for='capacityBox'>User Capacity</label>
-                                            <p><input id='capacityBox' name='roomCapacity' value='5' required/></p>
-                                            <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
-                                            <input type="submit" class="btn btn-primary" value="Submit" />
-                                    </form>
-                                </div>
-                            </div><!-- /.modal-content -->
-                        </div><!-- /.modal -->
-                    </div>
-                    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                    <h4 class="modal-title" id="loginLabel">Login</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <form action='/auth/login' method='post'>
-                                        <label for='nameBox'>UserName</label>
-                                        <p><input type='text' name='userName' value='' id='nameBox' required/></p>
-                                        <label for='passwordBox'>Password</label>
-                                        <p><input type='password' name='password' value='' id='passwordBox' required/></p>
-                                        <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
-                                        <input type="submit" class="btn btn-primary" value="Login" />
-                                    </form>
-                                </div>
-                            </div><!-- /.modal-content -->
-                        </div><!-- /.modal -->
-                    </div>
-                    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                    <h4 class="modal-title" id="registerLabel">Register</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <form action='/auth/register' method='post'>
-                                        <label for='nameBox'>UserName</label>
-                                        <p><input type='text' name='userName' value='' id='nameBox' required></p>
-                                        <label for='passwordBox'>Password</label>
-                                        <p><input type='password' name='password' value='' id='passwordBox' required></p>
-                                        <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
-                                        <input type="submit" class="btn btn-primary" value="Register" />
-                                    </form>
-                                </div>
-                            </div><!-- /.modal-content -->
-                        </div><!-- /.modal -->
-                    </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Room Id</th>
+                            <th>Name</th>
+                            <th>Creator</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rooms-holder">
+                    </tbody>
+                </table>
+            </div>
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Room Id</th>
-                        <th>Name</th>
-                        <th>Creator</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="rooms-holder">
-                </tbody>
-            </table>
+            <div class="tab-pane fade tabWrap" id="userTab">
+                <div style="float: left; margin-top: 15px">
+                    <a href="http://en.gravatar.com/" target="_blank">
+                        <img src="https://cdn.v2ex.com/gravatar/1a405078db970124e2c73d437b2fc8ce" style="text-align:left;">
+                    </a>
+                </div>
+
+                <div class="row" style="margin-bottom: 20px;">
+                    <div style="float: left;margin-left: 10px">
+                        <h2 style="text-align:left;">{{ g.user['userName'] }}</h2>
+                        <span style="color: grey;">Nickname</span>
+                        <span style="color: grey;"> (#{{ g.user['userId'] }})</span>
+                    </div>
+                </div>
+
+                <div class="row card">
+                    <div class="card-block">
+                        <dl class="user-info">
+                            <dt class="col-sm-3" style="font-size: 15px;">Register:</dt>
+                            <dd class="col-sm-9" style="font-size: 15px;">16 months ago</dd>
+                            <dt class="col-sm-3" style="font-size: 15px;">Last seen:</dt>
+                            <dd class="col-sm-9" style="font-size: 15px;">Just now</dd>
+                            <dt class="col-sm-3" style="font-size: 15px;">Email:</dt>
+                            <dd class="col-sm-9" style="font-size: 15px;">tanglizimail@126.com</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="row card">
+                    <div class="card-block intro" style="margin-left: 15px">
+                        <p>my blog:<a href="https://www.cnblogs.com/tanglizi">https://www.cnblogs.com/tanglizi</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade tabWrap in active" id="mainTab">
+                <div class="jumbotron">
+                    <h1>
+                        Welcome to Chatroom!
+                    </h1>
+                    <p>
+                        This is a simple chatroom for web UI design work.
+                    </p><p>
+                        I'm a student from NWPU software engineering school.
+                    </p>
+                </div>
+
+                <blockquote>
+                    <p>
+                        『你一直相信的事，也让我相信吧。活着，是件美好的事。』
+                    </p> <small>「Angle Beats」</small>
+                </blockquote>
+            </div>
         </div>
 
-        <div class="tab-pane fade" id="userTab">
-            <h1>User: {{ g.user['userName'] }}</h1>
-            <dl contenteditable="false">
-                <dt><h3>Name:    {{ g.user['userName'] }}</h3></dt>
-                <dt><h3>Id:      #{{ g.user['userId'] }}</h3></dt>
-                <dt><h3>Profile: {{ g.user['userProfile'] }}</h3></dt>
-            </dl>
-        </div>
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="createRoomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	    <div class="modal-content">
+		<div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		    <h4 class="modal-title" id="createRoomLabel">Create Room</h4>
+		</div>
+		<div class="modal-body">
+		    <form action='/chat/createroom' method='post'>
+			    <label for='nameBox'>Room Name</label>
+			    <p><input id='nameBox' name='roomName' required/></p>
+			    <label for='descriptionBox'>Description</label>
+			    <p><input id='descriptionBox' name='roomDescription' value='Welcome!'/></p>
+			    <label for='capacityBox'>User Capacity</label>
+			    <p><input id='capacityBox' name='roomCapacity' value='5' required/></p>
+			    <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
+			    <input type="submit" class="btn btn-primary" value="Submit" />
+		    </form>
+		</div>
+	    </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+    </div>
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	    <div class="modal-content">
+		<div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		    <h4 class="modal-title" id="loginLabel">Login</h4>
+		</div>
+		<div class="modal-body">
+		    <form action='/auth/login' method='post'>
+			<label for='nameBox'>UserName</label>
+			<p><input type='text' name='userName' value='' id='nameBox' required/></p>
+			<label for='passwordBox'>Password</label>
+			<p><input type='password' name='password' value='' id='passwordBox' required/></p>
+			<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
+			<input type="submit" class="btn btn-primary" value="Login" />
+		    </form>
+		</div>
+	    </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+    </div>
+    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	    <div class="modal-content">
+		<div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		    <h4 class="modal-title" id="registerLabel">Register</h4>
+		</div>
+		<div class="modal-body">
+		    <form action='/auth/register' method='post'>
+			<label for='nameBox'>UserName</label>
+			<p><input type='text' name='userName' value='' id='nameBox' required></p>
+			<label for='passwordBox'>Password</label>
+			<p><input type='password' name='password' value='' id='passwordBox' required></p>
+			<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
+			<input type="submit" class="btn btn-primary" value="Register" />
+		    </form>
+		</div>
+	    </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+    </div>
 {% endblock %}
 
 {% block scripts %}
