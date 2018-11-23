@@ -17,6 +17,9 @@ def register():
     if request.method=='POST':
         userName=request.form['userName']
         password=request.form['password']
+        userEmail=request.form['userEmail']
+        userColorName=request.form['userColorName']
+
         user_db=UserDatabase()
         error=None
 
@@ -24,6 +27,10 @@ def register():
             error='Username is required.'
         elif password is None:
             error='Password is required.'
+        elif utils.get_color_code(userColorName) is None:
+            error='Color is required, or no such color.'
+        elif utils.check_email_availability(userEmail) is None:
+            error='Please enter a correct email address.'
         elif user_db.find_one({
             'userName': userName
         }) is not None:
@@ -33,18 +40,21 @@ def register():
             user=User({
                 'userId': utils.get_user_id(),
                 'userName': userName,
-                'userProfile': 'None'
+                'userProfile': 'There is no profile for this one. :(',
+                'userEmail': userEmail,
+                'userColorName': userColorName,
+                'userColorCode': utils.get_color_code(userColorName),
+                'registerTime': utils.get_time(),
+                'lastSeenTime': utils.get_time(),
             })
             user_db.insert(user, utils.get_encrypt_password(password))
             session['userId']=user['userId']
             return redirect(url_for('index'))
         else:
             flash(error)
-            # return render_template('register.html')
-            return render_template('index.html', registerToggle=True)
+            return render_template('index.html', registerToggle=True, colors=config.COLOR)
     else:
-        # return render_template('register.html')
-        return render_template('index.html', registerToggle=True)
+        return render_template('index.html', registerToggle=True, colors=config.COLOR)
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -95,6 +105,13 @@ def login_auto():
     else:
         g.user=UserDatabase().find_one({
             'userId': userId
+        })
+
+        g.user['lastSeenTime']=utils.get_time()
+        UserDatabase().update({
+            'userId': userId,
+        }, {
+            'lastSeenTime': g.user['lastSeenTime']
         })
 
 @bp.route('/logout', methods=['GET', 'POST'])

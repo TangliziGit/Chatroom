@@ -1,6 +1,7 @@
 import hashlib
 import time
 import os
+import re
 
 from chatroom import config
 from chatroom import database
@@ -38,3 +39,9 @@ def check_password(password, true_password):
 
 def get_time():
     return int(time.time())
+
+def get_color_code(color_name):
+    return config.COLOR.get(color_name, None)
+
+def check_email_availability(address):
+    return re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', address)

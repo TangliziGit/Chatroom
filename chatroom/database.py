@@ -11,6 +11,7 @@ from flask import g
 # you should import with a package name.
 from chatroom import config
 from chatroom import mongo_con, redis_con
+from chatroom import utils
 
 class MongoBaseDatabase:
     db=None
@@ -50,7 +51,12 @@ class UserDatabase(MongoBaseDatabase):
                 'userId': user['userId'],
                 'userName': user['userName'],
                 'userProfile': user['userProfile'],
-                'password': password,
+                'password': user['password'],
+                'userEmail': user['userEmail'],
+                'userColorName': user['userColorName'],
+                'userColorCode': utils.get_color_code(user['userColorName']),
+                'registerTime': utils.get_time(),
+                'lastSeenTime': utils.get_time(),
             })
 
     def remove(self, userId):
@@ -58,9 +64,8 @@ class UserDatabase(MongoBaseDatabase):
             'userId': userId
         })
 
-    def update(self, userId, new_user, new_password):
-        self.remove(userId)
-        self.insert(new_user, new_password)
+    def update(self, userId, modify_dict):
+        self.db.update({'userId': userId}, {"$set": modify_dict})
 
     def find_one(self, query):
         res=list(self.db.find(query))
@@ -100,9 +105,7 @@ class User:
 
     def __init__(self, userinfo):
         try:
-            self.userinfo['userId']=userinfo['userId']
-            self.userinfo['userName']=userinfo['userName']
-            self.userinfo['userProfile']=userinfo['userProfile']
+            self.userinfo=userinfo
         except KeyError as err:
             print("Error in init User instance.")
             print("KeyError: ", err)
@@ -193,11 +196,7 @@ class Message:
 
     def __init__(self, msginfo):
         try:
-            self.msginfo['messageId']=msginfo['messageId']
-            self.msginfo['userId']=msginfo['userId']
-            self.msginfo['roomId']=msginfo['roomId']
-            self.msginfo['messageTimeStamp']=msginfo['messageTimeStamp']
-            self.msginfo['messageContent']=msginfo['messageContent']
+            self.msginfo=msginfo
         except KeyError as err:
             print("Error in init Msg instance.")
             print("KeyError:", err)

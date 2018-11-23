@@ -31,7 +31,7 @@ def create_app_socket():
 
     @app.route('/index', methods=['GET'])
     def index():
-        return render_template('index.html')
+        return render_template('index.html', colors=config.COLOR)
 
     @app.route('/', methods=['GET'])
     def root():

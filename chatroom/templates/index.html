@@ -34,6 +34,7 @@
             </div>
 
             <div class="tab-pane fade tabWrap" id="userTab">
+                {% if g.user %}
                 <div style="float: left; margin-top: 15px">
                     <a href="http://en.gravatar.com/" target="_blank">
                         <img src="https://cdn.v2ex.com/gravatar/1a405078db970124e2c73d437b2fc8ce" style="text-align:left;">
@@ -43,7 +44,7 @@
                 <div class="row" style="margin-bottom: 20px;">
                     <div style="float: left;margin-left: 10px">
                         <h2 style="text-align:left;">{{ g.user['userName'] }}</h2>
-                        <span style="color: grey;">Nickname</span>
+                        <span style="color: {{ g.user['userColorCode'] }};">{{ g.user['userColorName'] }}</span>
                         <span style="color: grey;"> (#{{ g.user['userId'] }})</span>
                     </div>
                 </div>
@@ -52,19 +53,22 @@
                     <div class="card-block">
                         <dl class="user-info">
                             <dt class="col-sm-3" style="font-size: 15px;">Register:</dt>
-                            <dd class="col-sm-9" style="font-size: 15px;">16 months ago</dd>
+                            <dd class="col-sm-9" style="font-size: 15px;">{{ g.user['registerTime'] }}</dd>
                             <dt class="col-sm-3" style="font-size: 15px;">Last seen:</dt>
-                            <dd class="col-sm-9" style="font-size: 15px;">Just now</dd>
+                            <dd class="col-sm-9" style="font-size: 15px;">{{ g.user['lastSeenTime'] }}</dd>
                             <dt class="col-sm-3" style="font-size: 15px;">Email:</dt>
-                            <dd class="col-sm-9" style="font-size: 15px;">tanglizimail@126.com</dd>
+                            <dd class="col-sm-9" style="font-size: 15px;">{{ g.user['userEmail'] }}</dd>
                         </dl>
                     </div>
                 </div>
                 <div class="row card">
                     <div class="card-block intro" style="margin-left: 15px">
-                        <p>my blog:<a href="https://www.cnblogs.com/tanglizi">https://www.cnblogs.com/tanglizi</a></p>
+                        {{ g.user['profile'] }}
                     </div>
                 </div>
+                {% else %}
+                <h1 align="center">Please login fristly.</h1>
+                {% endif %}
             </div>
 
             <div class="tab-pane fade tabWrap in active" id="mainTab">
@@ -143,6 +147,15 @@
 			<p><input type='text' name='userName' value='' id='nameBox' required></p>
 			<label for='passwordBox'>Password</label>
 			<p><input type='password' name='password' value='' id='passwordBox' required></p>
+			<label for='emailBox'>Email</label>
+			<p><input type='text' name='userEmail' value='' id='emailBox' required></p>
+            <label for='colorBox'>UserColor</label>
+            <p><select name="userColorName" class="form-control" style="width: 41%">
+                {% for name in colors.keys() %}
+                <option value="{{ name }}">{{ name }}</option>
+                {% endfor %}
+            </select></p>
+
 			<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
 			<input type="submit" class="btn btn-primary" value="Register" />
 		    </form>
