@@ -5,66 +5,17 @@
     <meta name='viewport' content='width=device-width, user-scalable=no' />
 
     <title>Light Chat Room::{% block title %}{% endblock %}</title>
-    <!-- link rel="stylesheet" href="{{ url_for("static", filename="stylesheet/style.css") }}" / -->
     <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
-    <style>
-    body {
-        /*background: linear-gradient(#CCFFFF, #FFCCCC);*/
-        background-color: #f6f6f6;
-    }
-
-    .column {
-        padding: 10px;
-        margin-top: 40px;
-        border: 1px solid gray;
-        border-radius: 10px;
-        background-color: #ffffff;
-    }
-
-    .tabWrap {
-        padding: 15px;
-    }
-
-    .card {
-        position:relative;
-        display:block;
-        margin-bottom:.75rem;
-        background-color:#fff;
-        border-radius:.25rem;
-        border:1px solid rgba(0,0,0,.125);
-        margin-left: 0px;
-        margin-top: 15px;
-    }
-    .card-block {
-        padding:1.25rem
-    }
-    </style>
+    <link rel="stylesheet" href="{{ url_for("static", filename="stylesheet/style.css") }}" />
     <script src={{url_for("static", filename="javascript/jquery-3.3.1.min.js")}}></script>
     <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-    <!--nav>
-        <h1>Light Chatroom</h1>
-        <ul>
-            {% if not g.user %}
-            <li><a href="{{ url_for("auth.login") }}">Login</a></li>
-            <li><a href="{{ url_for("auth.register") }}">Register</a></li>
-            {% else %}
-            <li><a href="{{ url_for("user.detail", userId=g.user['userId']) }}">{{ g.user['userName'] }}</a></li>
-            <li><a href="{{ url_for("auth.logout") }}">Logout</a></li>
-            {% endif %}
-        </ul>
-    </nav-->
-
     {% block head %}{% endblock %}
 </head>
 <body>
-    <script>
-        var serverUrl="http://localhost";
-        var serverWebSocket="ws://localhost";
-    </script>
+    <script src="{{ url_for('static', filename='javascript/utils.js') }}"></script>
 
-    <div class="container-fluid">
-        <div class="row-fluid ">
+    <div class="container-fluid" id="container">
+        <div class="row-fluid "id="total-row">
             <div class="col-md-8 col-md-offset-2 span12 column" style="">
                 {% for messages in get_flashed_messages() %}
                 <div class="flash alert alert-warning">{{ messages }}</div>

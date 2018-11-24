@@ -30,8 +30,11 @@ def create_app_socket():
         g.socket=socket
 
     @app.route('/index', methods=['GET'])
-    def index():
-        return render_template('index.html', colors=config.COLOR)
+    def index(**kwargs):
+        if g.user is not None:
+            g.registerTime=utils.to_date(g.user['registerTime'])
+            g.lastSeenTime=utils.to_date(g.user['lastSeenTime'])
+        return render_template('index.html', colors=config.COLOR, **kwargs)
 
     @app.route('/', methods=['GET'])
     def root():

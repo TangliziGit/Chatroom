@@ -45,3 +45,6 @@ def get_color_code(color_name):
 
 def check_email_availability(address):
     return re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', address)
+
+def to_date(timestamp):
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(timestamp))

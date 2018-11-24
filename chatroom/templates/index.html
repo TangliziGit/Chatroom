@@ -37,7 +37,7 @@
                 {% if g.user %}
                 <div style="float: left; margin-top: 15px">
                     <a href="http://en.gravatar.com/" target="_blank">
-                        <img src="https://cdn.v2ex.com/gravatar/1a405078db970124e2c73d437b2fc8ce" style="text-align:left;">
+                        <img src="http://cn.gravatar.com/avatar/{{ g.user['userName'] }}?d=identicon" style="text-align:left;">
                     </a>
                 </div>
 
@@ -53,9 +53,9 @@
                     <div class="card-block">
                         <dl class="user-info">
                             <dt class="col-sm-3" style="font-size: 15px;">Register:</dt>
-                            <dd class="col-sm-9" style="font-size: 15px;">{{ g.user['registerTime'] }}</dd>
+                            <dd class="col-sm-9" style="font-size: 15px;">{{ g.registerTime }}</dd>
                             <dt class="col-sm-3" style="font-size: 15px;">Last seen:</dt>
-                            <dd class="col-sm-9" style="font-size: 15px;">{{ g.user['lastSeenTime'] }}</dd>
+                            <dd class="col-sm-9" style="font-size: 15px;">{{ g.lastSeenTime }}</dd>
                             <dt class="col-sm-3" style="font-size: 15px;">Email:</dt>
                             <dd class="col-sm-9" style="font-size: 15px;">{{ g.user['userEmail'] }}</dd>
                         </dl>
@@ -63,7 +63,7 @@
                 </div>
                 <div class="row card">
                     <div class="card-block intro" style="margin-left: 15px">
-                        {{ g.user['profile'] }}
+                        {{ g.user['userProfile'] }}
                     </div>
                 </div>
                 {% else %}

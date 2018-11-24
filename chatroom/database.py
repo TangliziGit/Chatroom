@@ -51,7 +51,7 @@ class UserDatabase(MongoBaseDatabase):
                 'userId': user['userId'],
                 'userName': user['userName'],
                 'userProfile': user['userProfile'],
-                'password': user['password'],
+                'password': password,
                 'userEmail': user['userEmail'],
                 'userColorName': user['userColorName'],
                 'userColorCode': utils.get_color_code(user['userColorName']),
