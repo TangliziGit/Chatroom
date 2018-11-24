@@ -19,8 +19,6 @@ class MongoBaseDatabase:
     def __init__(self):
         self.con=None
         if 'mongo_con' not in g:
-            print("Error: g.mongo_con is None")
-            # self.con=MongoClient()
             self.con=mongo_con
             g.mongo_con=self.con
         else:
@@ -283,18 +281,19 @@ class ChatroomDatabase(MongoBaseDatabase):
         room['userlist']=[]
         return room
 
-    def find(self, query, limit=1, skip=0):
+    def find(self, query, limit=0, skip=0):
         rooms=[]
-        roomlist=RoomList()
-        for room in self.db.find(query)[skip:skip+limit]:
-            room.pop('_id')
-            online_room=roomlist.get(room['roomId'])
-
-            if online_room is not None:
-                room=online_room
-            else:
+        if limit!=0:
+            for room in self.db.find(query)[skip:skip+limit]:
+                room.pop('_id')
                 room['userlist']=[]
-            rooms.append(room)
+                rooms.append(room)
+        else:
+            for room in self.db.find(query):
+                room.pop('_id')
+                room['userlist']=[]
+                rooms.append(room)
+
         return rooms
 
     def count(self, query={}):

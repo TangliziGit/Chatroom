@@ -53,15 +53,14 @@ def createroom():
 @login_required
 def chatroom():
     roomId=request.args.get('roomId', None)
-    room_list=RoomList()
-
-    room=room_list.get(roomId)
+    room=ChatroomDatabase().find_one({'roomId': roomId})
     error=None
 
     if room is None:
         error="Room `%s` does not exit."%roomId
-    elif len(room['userlist'])>=room['roomCapacity']:
-        error="Room `%s` is already full."%roomId
+    # TODO
+    # elif len(room['userlist'])>=room['roomCapacity']:
+    #    error="Room `%s` is already full."%roomId
 
     if error is None:
         g.room=room
@@ -80,8 +79,9 @@ def chatroom():
 
 @bp.route('/roomlist', methods=['GET'])
 def roomlist():
-    room_list=RoomList()
-    rooms=room_list.get_all()
+    # room_list=RoomList()
+    rooms=ChatroomDatabase().find({})# room_list.get_all()
+    print(rooms)
     rooms_dict={}
     for room in rooms:
         rooms_dict[room['roomId']]=room
@@ -101,7 +101,7 @@ def roomlist():
 @bp.route('/memberlist', methods=['GET'])
 def memberlist():
     roomId=request.args.get('roomId', None)
-    room_list=RoomList()
+    # room_list=RoomList()
     user_db=UserDatabase()
     room=None
     error=None
@@ -109,7 +109,9 @@ def memberlist():
     if roomId is None:
         error='roomId is required.'
     else:
-        room=room_list.get(roomId)
+        room=ChatroomDatabase().find_one({
+            'roomId': roomId
+        })
         if room is None:
             error="Room `%s` does not exit."%roomId
 

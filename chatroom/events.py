@@ -25,15 +25,12 @@ def join(data):
     roomId=session.get('roomId')
 
     join_room(roomId)
-    # RoomList().append(userId, roomId)
     emit('status', {
         'userId':               userId,
         'userName':             userName,
         'userColorCode':        config.COLOR[userColorName],
         'messageContent':       "Entered room."
     }, room=roomId)
-    print(request.sid)
-    print(socket.server.manager.rooms)
 
 @socket.on('submit', namespace='/chat')
 def submit(data):
@@ -72,7 +69,6 @@ def leave(data):
     roomId=session.get('roomId')
 
     leave_room(roomId)
-    # RoomList().remove(userId, roomId)
     emit('status', {
         'userId':               userId,
         'userName':             userName,
