@@ -48,4 +48,13 @@ $(document).ready(function(){
             createRoomsList(JSON.parse(response));
         }
     })
+
+    $.ajax({
+        url: hitokotoUrl,
+        async: true,
+        success: function(response){
+            $("#hitokoto").text('『'+response['hitokoto']+'』');
+            $("#hitokoto-from").text('「'+response['from']+'」');
+        }
+    })
 })
