@@ -1,3 +1,5 @@
+import hashlib
+
 from redis import StrictRedis
 from pymongo import MongoClient
 
@@ -34,6 +36,7 @@ def create_app_socket():
         if g.user is not None:
             g.registerTime=utils.to_date(g.user['registerTime'])
             g.lastSeenTime=utils.to_date(g.user['lastSeenTime'])
+            g.hashedUserName=hashlib.sha256(g.user['userName'].encode()).hexdigest()
         return render_template('index.html', colors=config.COLOR, **kwargs)
 
     @app.route('/', methods=['GET'])
