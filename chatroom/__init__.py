@@ -22,7 +22,7 @@ def create_app_socket():
     app.config.from_pyfile('config.py')
     app.teardown_appcontext(database.MongoBaseDatabase.teardown)
     app.teardown_appcontext(database.RedisBaseDatabase.teardown)
-    socket=SocketIO(app)
+    socket=SocketIO(app, engineio_logger=True)
     # app.cli.add_command()
 
     @app.before_request
