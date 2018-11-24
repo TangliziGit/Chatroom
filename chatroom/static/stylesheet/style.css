@@ -29,3 +29,20 @@ body {
 .card-block {
     padding:1.25rem
 }
+
+.message{
+    margin: 15px 5px 15px 5px;
+}
+.message-user{}
+.message-content{
+    border-radius: .25rem;
+    border:1px solid #AAAAAA;
+    padding: 5px 5px 5px 5px;
+    margin-left: 5px;
+}
+.message-status{
+    padding: 5px 5px 5px 5px;
+    margin-left: 5px;
+}
+
+

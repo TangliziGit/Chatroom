@@ -21,6 +21,7 @@ from chatroom import socket
 def join(data):
     userId=session.get('userId')
     userName=session.get('userName')
+    userColorName=session.get('userColorName')
     roomId=session.get('roomId')
 
     join_room(roomId)
@@ -28,7 +29,8 @@ def join(data):
     emit('status', {
         'userId':               userId,
         'userName':             userName,
-        'content':              "Entered room."
+        'userColorCode':        config.COLOR[userColorName],
+        'messageContent':       "Entered room."
     }, room=roomId)
     print(request.sid)
     print(socket.server.manager.rooms)
@@ -40,6 +42,7 @@ def submit(data):
 
     userId=session.get('userId')
     userName=session.get('userName')
+    userColorName=session.get('userColorName')
     roomId=session.get('roomId')
 
     msg=Message({
@@ -55,6 +58,7 @@ def submit(data):
         'messageId':        msg['messageId'],
         'userId':           msg['userId'],
         'userName':         userName,
+        'userColorCode':    config.COLOR[userColorName],
         'roomId':           msg['roomId'],
         'messageTimeStamp': msg['messageTimeStamp'],
         'messageContent':   msg['messageContent']

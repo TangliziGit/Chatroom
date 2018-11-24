@@ -1,6 +1,5 @@
 $(document).ready(function(){
     socket=io.connect(serverWebSocket+"/chat");
-    // socket=io.connect("ws://45.32.45.1:80/chat", {transports: ['polling']});
 
     // build up websocket and join this room
     socket.on('connect', function(){
@@ -10,21 +9,35 @@ $(document).ready(function(){
     // listen messages
     socket.on('listen', function(message){
         console.log(message);
-        $("<p />", {
-            'class': 'message',
-            'text': message['userName']+'(#'+message['userId']+'):'+
-                    decodeURI(message['messageContent'])
+        $("<div />", {
+            'class': 'message'
         }).appendTo($('#chatBox'));
+        $("<span />", {
+            'class': 'message-user',
+            'text': '■'+message['userName']+'(#'+message['userId']+'): ',
+            'style': "color: "+message['userColorCode']
+        }).appendTo($('.message:last'));
+        $("<span />", {
+            'class': 'message-content',
+            'text': decodeURI(message['messageContent'])
+        }).appendTo($('.message:last'));
     });
 
     // listen users status
     socket.on('status', function(message){
         console.log(message);
-        $("<p />", {
-            'class': 'status',
-            'text': message['userName']+'(#'+message['userId']+'):'+
-                    message['content']
+        $("<div />", {
+            'class': 'message'
         }).appendTo($('#chatBox'));
+        $("<span />", {
+            'class': 'message-user',
+            'text': '■'+message['userName']+'(#'+message['userId']+'): ',
+            'style': "color: "+message['userColorCode']
+        }).appendTo($('.message:last'));
+        $("<u />", {
+            'class': 'message-status',
+            'text': decodeURI(message['messageContent'])
+        }).appendTo($('.message:last'));
     });
 
     // addEvents

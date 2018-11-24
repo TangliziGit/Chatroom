@@ -67,6 +67,7 @@ def chatroom():
         g.room=room
         session['userId']=g.user['userId']
         session['userName']=g.user['userName']
+        session['userColorName']=g.user['userColorName']
         session['roomId']=room['roomId']
         # room_list.append(g.user['userId'], room['roomId'])
 
