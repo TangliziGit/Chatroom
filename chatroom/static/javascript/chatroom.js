@@ -12,7 +12,12 @@ $(document).ready(function(){
         $("<div />", {
             'class': 'message'
         }).appendTo($('#chatBox'));
-        $("<span />", {
+
+        $("<img />", {
+            'class': 'message-avatar',
+            'src': avatarUrl+message['userId']+avatarParam
+        }).appendTo($('.message:last'));
+        $("<p />", {
             'class': 'message-user',
             'text': '■'+message['userName']+'(#'+message['userId']+'): ',
             'style': "color: "+message['userColorCode']
@@ -27,17 +32,18 @@ $(document).ready(function(){
     socket.on('status', function(message){
         console.log(message);
         $("<div />", {
-            'class': 'message'
+            'class': 'information'
         }).appendTo($('#chatBox'));
+
         $("<span />", {
-            'class': 'message-user',
+            'class': 'information-user',
             'text': '■'+message['userName']+'(#'+message['userId']+'): ',
             'style': "color: "+message['userColorCode']
-        }).appendTo($('.message:last'));
+        }).appendTo($('.information:last'));
         $("<u />", {
-            'class': 'message-status',
+            'class': 'information-status',
             'text': decodeURI(message['messageContent'])
-        }).appendTo($('.message:last'));
+        }).appendTo($('.information:last'));
     });
 
     // addEvents

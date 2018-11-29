@@ -9,3 +9,5 @@ function toDate(timestamp){
 var serverUrl="http://localhost";
 var serverWebSocket="ws://localhost";
 var hitokotoUrl="https://v1.hitokoto.cn/?c=a";
+var avatarUrl="http://cn.gravatar.com/avatar/",
+    avatarParam="?d=identicon";

@@ -33,14 +33,28 @@ body {
 .message{
     margin: 15px 5px 15px 5px;
 }
-.message-user{}
+.message-user{
+    margin-left: 60px;
+}
 .message-content{
     border-radius: .25rem;
     border:1px solid #AAAAAA;
     padding: 5px 5px 5px 5px;
-    margin-left: 5px;
+    margin-left: 20px;
 }
-.message-status{
+.message-avatar{
+    height: 55px;
+    width: 55px;
+    float: left;
+    border-radius: .75rem;
+    border: 1px solid #999;
+}
+
+.information{
+    margin: 15px 5px 15px 5px;
+}
+.information-user{}
+.information-status{
     padding: 5px 5px 5px 5px;
     margin-left: 5px;
 }

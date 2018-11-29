@@ -37,7 +37,7 @@
                 {% if g.user %}
                 <div style="float: left; margin-top: 15px">
                     <a href="http://en.gravatar.com/" target="_blank">
-                        <img src="http://cn.gravatar.com/avatar/{{ g.hashedUserName }}?d=identicon" style="text-align:left;">
+                        <img src="http://cn.gravatar.com/avatar/{{ g.user['userId'] }}?d=identicon" style="text-align:left;">
                     </a>
                 </div>
 
