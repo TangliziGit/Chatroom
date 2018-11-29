@@ -6,23 +6,26 @@
 
 {% block column %}
     <h1>Chatroom - {{ g.room['roomName'] }} #{{ g.room['roomId'] }}</h1>
-    <p>{{ roomDescription }}</p>
-    <table id='messageTable'>
-        <tr>
-            <td>UserName</td>
-            <td id="userName">{{ g.user['userName'] }}</td>
-        </tr>
-        <tr>
-            <td>Post Msg</td>
-            <td><input name='text' value='' id='textBox'/></td>
-        </tr>
-        <tr>
-            <td><button id='submitBtn'>Submit</button></td>
-        </tr>
-    </table>
+    <!--div class="room-description">{{ g.room['roomDescription'] }}</div-->
 
-    <div id='chatBox'>
+    <div id='chatBox' class='chat-box'>
         <!-- chat messages -->
+    </div>
+
+    <div class='chat-typeboard'>
+        <table id='messageTable'>
+            <tr>
+                <td>UserName</td>
+                <td id="userName">{{ g.user['userName'] }}</td>
+            </tr>
+            <tr>
+                <td>Post Msg</td>
+                <td><input name='text' value='' id='textBox'/></td>
+            </tr>
+            <tr>
+                <td><button id='submitBtn'>Submit</button></td>
+            </tr>
+        </table>
     </div>
 {% endblock %}
 

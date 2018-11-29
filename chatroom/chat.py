@@ -79,18 +79,17 @@ def chatroom():
 
 @bp.route('/roomlist', methods=['GET'])
 def roomlist():
-    # room_list=RoomList()
-    rooms=ChatroomDatabase().find({})# room_list.get_all()
+    rooms=ChatroomDatabase().find({})
     print(rooms)
     rooms_dict={}
     for room in rooms:
         rooms_dict[room['roomId']]=room
 
-    # socket_rooms=g.socket.server.manager.rooms.get('/chat', {})
-    # for roomId in socket_rooms.keys():
-    #     if roomId not in rooms_dict.keys():
-    #         continue
-    #     rooms_dict[roomId]['userlist']=list(socket_rooms[roomId].keys())
+    socket_rooms=g.socket.server.manager.rooms.get('/chat', {})
+    for roomId in socket_rooms.keys():
+        if roomId not in rooms_dict.keys():
+            continue
+        rooms_dict[roomId]['userlist']=list(socket_rooms[roomId].keys())
 
     rooms=[]
     for key, value in rooms_dict.items():

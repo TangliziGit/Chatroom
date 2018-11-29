@@ -59,4 +59,20 @@ body {
     margin-left: 5px;
 }
 
+.room-description{
+    border-radius: .25rem;
+    border:1px solid #CCC;
+    font-size: 25px;
+    padding-left: 50px;
+}
 
+.chat-box{
+    border-radius: .75rem;
+    border:1px solid #999;
+    margin-bottom: 30px;
+}
+
+.chat-typeboard{
+    border-radius: .75rem;
+    border:1px solid #999;
+}
